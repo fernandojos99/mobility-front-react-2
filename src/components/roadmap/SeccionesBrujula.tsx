@@ -16,19 +16,44 @@ import {
 import type { Camino, Hito } from "../../types/domain";
 
 /**
- * El nivel 1–5 sobre el termómetro rojo→verde, con la marca colocada por porcentaje.
+ * Una ÚNICA barra azul que va de donde estás a donde pide el puesto.
  *
- * Antes eran cinco puntitos sueltos (`rm-dots`). El termómetro es el mismo que usa `/yo/gap` para
- * el desempeño y la felicidad, así que las tres pantallas cuentan un nivel de la misma forma. El
- * degradado sale de `--gs-termometro`, declarado una sola vez en `gs.css`.
+ * Antes eran dos barras separadas —"Hoy" y "Meta"— y había que compararlas de un vistazo para
+ * deducir la brecha. Ahora es una sola: el relleno azul es lo que ya tienes, lo gris es lo que
+ * falta, y la flecha marca justo la frontera entre las dos.
+ *
+ * El porcentaje y la flecha salen del MISMO cálculo (`pct`), así que no pueden discrepar: si el
+ * rótulo dice 20 %, la flecha está en el 20 % del ancho. `meta` puede ser menor que 5 —el hito de
+ * desempeño pide 3—, por eso el avance se mide contra la meta y no contra un 5 fijo.
  */
-export function NivelBarra({ valor }: { valor: number }) {
-  const pct = (Math.min(5, Math.max(0, valor)) / 5) * 100;
+export function NivelBarra({ actual, meta, compacta = false }: {
+  actual: number;
+  meta: number;
+  /** Sin rótulos: la usan las tarjetas de rol, que ya enseñan el número encima. */
+  compacta?: boolean;
+}) {
+  const tope = Math.max(1, meta);
+  const pct = Math.round((Math.min(actual, tope) / tope) * 100);
+  const faltan = Math.round((meta - actual) * 10) / 10;
+
   return (
-    <div className="rm-nivel" aria-label={`${valor} de 5`}>
+    <div className="rm-nivel" aria-label={`Nivel ${actual} de ${meta}, ${pct} %`}>
+      {!compacta && (
+        <div className="rm-nivel-cab">
+          <span>Nivel <b>{actual}</b> de <b>{meta}</b></span>
+          <span className="rm-nivel-pct">{pct} %</span>
+        </div>
+      )}
       <div className="rm-nivel-barra">
+        <span className="rm-nivel-relleno" style={{ width: `${pct}%` }} />
         <span className="rm-nivel-marca" style={{ left: `${pct}%` }} />
       </div>
+      {!compacta && faltan > 0 && (
+        <span className="rm-nivel-falta">
+          Te {faltan === 1 ? "falta" : "faltan"} {faltan} {faltan === 1 ? "nivel" : "niveles"} para
+          lo que pide el puesto
+        </span>
+      )}
     </div>
   );
 }
@@ -127,7 +152,7 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
             <span>Nivel promedio</span>
             <strong>{hoy} <small>/ 5</small></strong>
           </div>
-          <NivelBarra valor={Math.round(hoy)} />
+          <NivelBarra actual={hoy} meta={5} compacta />
         </div>
 
         <div className="rm-conector"><ArrowRight size={18} /></div>
@@ -143,7 +168,7 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
             <span>Nivel requerido</span>
             <strong>{meta} <small>/ 5</small></strong>
           </div>
-          <NivelBarra valor={Math.round(meta)} />
+          <NivelBarra actual={meta} meta={5} compacta />
         </div>
       </div>
 
@@ -235,15 +260,7 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
               </button>
 
               <div className="rm-niveles">
-                <div>
-                  <span>Hoy</span><strong>{h.nivelActual}/5</strong>
-                  <NivelBarra valor={h.nivelActual} />
-                </div>
-                <div className="rm-flecha"><ArrowRight size={15} /></div>
-                <div>
-                  <span>Meta</span><strong>{h.nivelMeta}/5</strong>
-                  <NivelBarra valor={h.nivelMeta} />
-                </div>
+                <NivelBarra actual={h.nivelActual} meta={h.nivelMeta} />
               </div>
 
               {open && (

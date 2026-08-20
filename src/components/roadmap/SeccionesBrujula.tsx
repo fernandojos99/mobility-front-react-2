@@ -15,13 +15,20 @@ import {
 } from "lucide-react";
 import type { Camino, Hito } from "../../types/domain";
 
-/** Los cinco puntitos de nivel del original. `gris` distingue el nivel de hoy del de la meta. */
-export function NivelDots({ valor, gris = false }: { valor: number; gris?: boolean }) {
+/**
+ * El nivel 1–5 sobre el termómetro rojo→verde, con la marca colocada por porcentaje.
+ *
+ * Antes eran cinco puntitos sueltos (`rm-dots`). El termómetro es el mismo que usa `/yo/gap` para
+ * el desempeño y la felicidad, así que las tres pantallas cuentan un nivel de la misma forma. El
+ * degradado sale de `--gs-termometro`, declarado una sola vez en `gs.css`.
+ */
+export function NivelBarra({ valor }: { valor: number }) {
+  const pct = (Math.min(5, Math.max(0, valor)) / 5) * 100;
   return (
-    <div className="rm-dots" aria-label={`${valor} de 5`}>
-      {[1, 2, 3, 4, 5].map((d) => (
-        <span key={d} className={d <= valor ? (gris ? "on gris" : "on") : ""} />
-      ))}
+    <div className="rm-nivel" aria-label={`${valor} de 5`}>
+      <div className="rm-nivel-barra">
+        <span className="rm-nivel-marca" style={{ left: `${pct}%` }} />
+      </div>
     </div>
   );
 }
@@ -120,7 +127,7 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
             <span>Nivel promedio</span>
             <strong>{hoy} <small>/ 5</small></strong>
           </div>
-          <NivelDots valor={Math.round(hoy)} gris />
+          <NivelBarra valor={Math.round(hoy)} />
         </div>
 
         <div className="rm-conector"><ArrowRight size={18} /></div>
@@ -136,7 +143,7 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
             <span>Nivel requerido</span>
             <strong>{meta} <small>/ 5</small></strong>
           </div>
-          <NivelDots valor={Math.round(meta)} />
+          <NivelBarra valor={Math.round(meta)} />
         </div>
       </div>
 
@@ -230,12 +237,12 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
               <div className="rm-niveles">
                 <div>
                   <span>Hoy</span><strong>{h.nivelActual}/5</strong>
-                  <NivelDots valor={h.nivelActual} gris />
+                  <NivelBarra valor={h.nivelActual} />
                 </div>
                 <div className="rm-flecha"><ArrowRight size={15} /></div>
                 <div>
                   <span>Meta</span><strong>{h.nivelMeta}/5</strong>
-                  <NivelDots valor={h.nivelMeta} />
+                  <NivelBarra valor={h.nivelMeta} />
                 </div>
               </div>
 

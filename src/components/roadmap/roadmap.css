@@ -63,11 +63,13 @@
   background:var(--rm-soft); border-radius:50%; position:absolute; z-index:1;
   left:50%; top:50%; transform:translate(-50%,-50%) rotate(90deg);}
 
-/* Puntitos de nivel */
-.rm-dots{display:flex; gap:4px; margin-top:8px;}
-.rm-dots span{width:100%; max-width:34px; height:5px; background:var(--gs-border); border-radius:10px;}
-.rm-dots span.on{background:var(--rm-primary);}
-.rm-dots span.on.gris{background:#94A3B8;}
+/* Nivel 1-5 sobre el termómetro. Mismo degradado que `/yo/gap`, vía `--gs-termometro`. */
+.rm-nivel{margin-top:9px;}
+.rm-nivel-barra{position:relative; height:.6875rem; border-radius:999px;
+  background:var(--gs-termometro); box-shadow:inset 0 0 0 1px #ffffffaa;}
+.rm-nivel-marca{position:absolute; top:-5px; width:0; height:0; transform:translateX(-50%);
+  border-left:6px solid transparent; border-right:6px solid transparent;
+  border-top:10px solid #172238;}
 
 /* ───────── Filtros y brechas ───────── */
 .rm-filtros{display:flex; overflow-x:auto; gap:7px; margin-bottom:12px; scrollbar-width:none;}
@@ -100,8 +102,7 @@
 .rm-niveles > div:not(.rm-flecha){flex:1;}
 .rm-niveles span{color:var(--gs-muted-foreground); font-size:10px;}
 .rm-niveles strong{float:right; font-size:11px;}
-.rm-niveles .rm-dots{margin-top:7px;}
-.rm-niveles .rm-dots span{max-width:none; height:4px;}
+.rm-niveles .rm-nivel{margin-top:8px;}
 .rm-flecha{color:var(--gs-muted-foreground); padding-top:13px;}
 
 .rm-detalle{border-top:1px solid var(--gs-border); background:#FBFDFF; padding:11px 14px;
@@ -142,6 +143,11 @@
 .rm-destino-btn{width:100%; display:flex; align-items:center; gap:10px; text-align:left;
   padding:12px 13px; color:var(--gs-foreground); background:var(--gs-card);
   border:1px solid var(--gs-border); border-radius:10px; font-size:13px; font-weight:700;}
+/* Sin destino elegido, este control ES la pantalla: borde grueso en azul de marca y fondo suave
+   para que se lea como el único paso que hay que dar. */
+.rm-destino.primero .rm-destino-btn{border:2px solid var(--rm-primary); background:#FBFDFF;
+  padding:14px 13px; box-shadow:0 0 0 4px rgba(8,126,232,.12);}
+.rm-destino.primero .rm-destino-label{color:var(--rm-primary); font-size:11px;}
 .rm-destino-btn:hover{border-color:var(--rm-primary);}
 .rm-destino-btn > span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .rm-destino-btn small{font-weight:500; color:var(--gs-muted-foreground); font-size:11px;}

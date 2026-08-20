@@ -38,8 +38,7 @@
 /* Termómetro. El degradado rojo→verde se conserva: es una escala de dato, no de marca. */
 .tl-escala{margin-top:1.125rem;}
 .tl-barra{position:relative; height:.8125rem; border-radius:999px;
-  background:linear-gradient(90deg,#df1717 0%,#ee5c19 18%,#f4b51d 38%,#f8dc3c 58%,#72c92b 78%,#16af21 100%);
-  box-shadow:inset 0 0 0 1px #ffffffaa;}
+  background:var(--gs-termometro); box-shadow:inset 0 0 0 1px #ffffffaa;}
 /* La marca se coloca por `left` en línea, según el dato. */
 .tl-marca{position:absolute; top:-5px; width:0; height:0; transform:translateX(-50%);
   border-left:7px solid transparent; border-right:7px solid transparent; border-top:12px solid #172238;}

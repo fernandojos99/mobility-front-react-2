@@ -21,14 +21,24 @@ interface Props {
   objetivoTitulo?: string;
   guardando: string;
   onElegir: (puestoId: string) => void;
+  /** No se puede plegar. Lo usa la instancia del final, después de "Ver mi camino". */
+  siempreAbierto?: boolean;
+  /** Destaca el control: es el primer y único paso cuando todavía no hay destino. */
+  destacado?: boolean;
+  etiqueta?: string;
 }
 
-export function SelectorDestino({ puestos, objetivo, objetivoTitulo, guardando, onElegir }: Props) {
-  const [abierto, setAbierto] = useState(!objetivo);
+export function SelectorDestino({
+  puestos, objetivo, objetivoTitulo, guardando, onElegir,
+  siempreAbierto = false, destacado = false, etiqueta = "Puesto deseado",
+}: Props) {
+  const [plegable, setPlegable] = useState(!objetivo);
+  const abierto = siempreAbierto || plegable;
+  const setAbierto = setPlegable;
   const [busqueda, setBusqueda] = useState("");
 
   // Si aparece una aspiración (recién elegida), el panel se cierra solo: ya cumplió su función.
-  useEffect(() => { if (objetivo) setAbierto(false); }, [objetivo]);
+  useEffect(() => { if (objetivo) setPlegable(false); }, [objetivo]);
 
   const filtrados = puestos.filter(
     (p) => !busqueda ||
@@ -37,16 +47,18 @@ export function SelectorDestino({ puestos, objetivo, objetivoTitulo, guardando, 
   );
 
   return (
-    <div className="rm-destino">
-      <span className="rm-destino-label">Puesto deseado</span>
+    <div className={"rm-destino" + (destacado ? " primero" : "")}>
+      <span className="rm-destino-label">{etiqueta}</span>
 
-      <button className="rm-destino-btn" onClick={() => setAbierto((v) => !v)} aria-expanded={abierto}>
-        <span>
-          {objetivoTitulo ?? "Elige tu puesto objetivo"}
-          {!objetivoTitulo && <small> · todavía no has elegido</small>}
-        </span>
-        {abierto ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
-      </button>
+      {!siempreAbierto && (
+        <button className="rm-destino-btn" onClick={() => setAbierto((v) => !v)} aria-expanded={abierto}>
+          <span>
+            {objetivoTitulo ?? "Elige tu puesto objetivo"}
+            {!objetivoTitulo && <small> · todavía no has elegido</small>}
+          </span>
+          {abierto ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
+        </button>
+      )}
 
       {abierto && (
         <div className="rm-destino-panel">

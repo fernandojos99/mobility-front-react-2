@@ -7,7 +7,7 @@
  *
  * La piel es la misma que la de `/yo`, `/yo/gap` y `/yo/aspiracion`: la hoja blanca sobre fondo
  * gris, los tokens `--gs-*`/`--rm-*` y su pila tipográfica. Por eso todo va dentro de `.gs .rm`.
- * Lo que NO lleva es el hero de perfil: esta pantalla no habla de la persona, habla de vacantes.
+ * Lleva también el hero de perfil, para que la navegación en iconos esté en las cuatro pantallas.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Briefcase, Boxes, ArrowUpDown, ChevronDown } from "lucide-react";
@@ -16,6 +16,7 @@ import { proyectoService } from "../services/proyectoService";
 import { useData } from "../store/DataProvider";
 import { useSesion } from "../contexts/SesionContext";
 import { useYo } from "../hooks/useYo";
+import { HeroPerfilGS } from "../components/perfil/HeroPerfilGS";
 import { VacanteCard, resumenBloqueos } from "../components/oportunidades/VacanteCard";
 import { ProyectoCard } from "../components/oportunidades/ProyectoCard";
 import "../components/perfil/gs.css";
@@ -34,7 +35,7 @@ const ORDENES: { valor: Orden; texto: string }[] = [
 
 export function OportunidadesPage() {
   const yo = useYo();
-  const { catalogos } = useData();
+  const { catalogos, puestoDe } = useData();
   const { toast } = useSesion();
   const [pestana, setPestana] = useState<"vacantes" | "proyectos">("vacantes");
   const [vacantes, setVacantes] = useState<VacanteOportunidad[]>([]);
@@ -96,6 +97,8 @@ export function OportunidadesPage() {
   return (
     <div className="gs-fondo">
       <div className="gs">
+        <HeroPerfilGS yo={yo} puesto={puestoDe(yo.puestoActualId)} />
+
         <div className="rm">
           <div className="op-wrap">
             <div className="op-tabs" role="group" aria-label="Tipo de oportunidad">

@@ -40,6 +40,9 @@
   --gs-radius-md:0.5rem;
   --gs-radius-lg:0.625rem;
   --gs-radius-xl:0.875rem;
+  /* Termómetro rojo→verde. Vive aquí y no en cada hoja porque lo usan `/yo/gap`,
+     `/yo/aspiracion` y el panel del mapa: copiado en tres sitios acabaría siendo tres degradados. */
+  --gs-termometro:linear-gradient(90deg,#df1717 0%,#ee5c19 18%,#f4b51d 38%,#f8dc3c 58%,#72c92b 78%,#16af21 100%);
   --gs-shadow-sm:0 1px 3px 0 rgb(0 0 0/.1), 0 1px 2px -1px rgb(0 0 0/.1);
   --gs-shadow-md:0 4px 6px -1px rgb(0 0 0/.1), 0 2px 4px -2px rgb(0 0 0/.1);
   --gs-shadow-lg:0 10px 15px -3px rgb(0 0 0/.1), 0 4px 6px -4px rgb(0 0 0/.1);
@@ -284,4 +287,38 @@
   .gs-hero-cuerpo{padding-left:2rem; padding-right:2rem;}
   .gs-lista{padding-left:2rem; padding-right:2rem;}
   .gs-card{margin-left:2rem; margin-right:2rem;}
+}
+
+
+/* ───────── Navegación en iconos, bajo la identidad del hero ─────────
+   Va dentro de `HeroPerfilGS`, que comparten las cuatro pantallas del colaborador, así que aparece
+   en todas sin repetir marcado. La barra lateral sigue existiendo: es el único sitio con el selector
+   de perfil de demo y el acceso a la vista de generalista. */
+.gs-nav-perfil{display:flex; gap:.25rem; margin-top:1.125rem; padding-top:1rem;
+  border-top:1px solid var(--gs-border); overflow-x:auto; scrollbar-width:none;}
+.gs-nav-perfil::-webkit-scrollbar{display:none;}
+.gs-nav-perfil a{flex:1 1 0; min-width:4.5rem; display:flex; flex-direction:column;
+  align-items:center; gap:.375rem; padding:.25rem; text-decoration:none;
+  color:var(--gs-muted-foreground); font-size:10px; font-weight:600; text-align:center;
+  line-height:1.2;}
+.gs-nav-perfil i{display:grid; place-items:center; width:2.75rem; height:2.75rem;
+  border-radius:9999px; background:var(--gs-muted); color:var(--gs-muted-foreground);
+  border:1px solid transparent; transition:background-color .15s ease, color .15s ease;}
+.gs-nav-perfil a:hover i{background:#E7F2FD; color:#087ee8;}
+.gs-nav-perfil a.activo{color:#087ee8;}
+.gs-nav-perfil a.activo i{background:#087ee8; color:#fff;}
+
+/* ───────── "Actualiza tu perfil" y sus fuentes ───────── */
+.gs-fuentes{margin-top:.75rem; display:flex; flex-wrap:wrap; gap:.5rem;}
+.gs-fuente-btn{display:inline-flex; align-items:center; gap:.4375rem;
+  border:1px solid var(--gs-border); background:var(--gs-card); color:var(--gs-foreground);
+  border-radius:var(--gs-radius-md); padding:.5rem .75rem; font-size:11px; font-weight:600;
+  transition:border-color .15s ease, color .15s ease;}
+.gs-fuente-btn:hover{border-color:#087ee8; color:#087ee8;}
+.gs-fuente-btn:disabled{opacity:.5; cursor:not-allowed;}
+.gs-fuentes-nota{margin-top:.5rem; font-size:11px; color:var(--gs-muted-foreground); line-height:1.45;}
+
+@media(min-width:640px){
+  .gs-nav-perfil a{font-size:11px;}
+  .gs-nav-perfil i{width:3rem; height:3rem;}
 }

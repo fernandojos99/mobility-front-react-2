@@ -2,7 +2,8 @@
 import { apiClient } from "../lib/apiClient";
 import type {
   Camino, Colaborador, Completitud, GapActual, ProyectoOportunidad,
-  PuestoCompatible, ResultadoIntegracion, VacanteOportunidad,
+  PuestoCompatible, FuenteIntegracion,
+  ResultadoIntegracion, VacanteOportunidad,
 } from "../types/domain";
 
 export const colaboradorService = {
@@ -18,7 +19,7 @@ export const colaboradorService = {
 
   completitud: (id: number): Promise<Completitud> => apiClient.get(`/colaboradores/${id}/completitud`),
 
-  integrar: (id: number, fuente: "cv" | "gs" | "linkedin"): Promise<ResultadoIntegracion> =>
+  integrar: (id: number, fuente: FuenteIntegracion): Promise<ResultadoIntegracion> =>
     apiClient.post(`/colaboradores/${id}/integraciones/${fuente}`),
 
   gap: (id: number): Promise<GapActual> => apiClient.get(`/colaboradores/${id}/gap`),

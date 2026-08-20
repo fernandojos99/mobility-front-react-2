@@ -15,33 +15,30 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { Building2, CircleHelp, Ellipsis, FileUp, Loader2, Lock } from "lucide-react";
+import { Ellipsis, Lock } from "lucide-react";
 import { colaboradorService } from "../services/colaboradorService";
 import { useData } from "../store/DataProvider";
 import { useSesion } from "../contexts/SesionContext";
 import { useYo } from "../hooks/useYo";
 import { ACCESOS, CabeceraGS } from "../components/perfil/CabeceraGS";
+import type { Fuente } from "../components/perfil/HeroPerfilGS";
 import { ResumenPerfil } from "../components/perfil/ResumenPerfil";
 import { TarjetaPerfil, type CampoDef, type Registro } from "../components/perfil/TarjetaPerfil";
 import "../components/perfil/gs.css";
-import type { Colaborador, Completitud, ResultadoIntegracion } from "../types/domain";
-
-type Fuente = "cv" | "gs" | "linkedin";
+import type {
+  Colaborador, Completitud, FuenteIntegracion, ResultadoIntegracion,
+} from "../types/domain";
 
 /** Lo que `AppShell` pasa por el `Outlet`: el botón de menú del componente abre el sidebar real. */
 interface ContextoShell { abrirMenu: () => void }
 
-/**
- * Logo de LinkedIn en SVG en línea. Lucide ya no trae iconos de marca, y el brief pide
- * expresamente que se vean los símbolos de cada fuente.
- */
-const LogoLinkedIn = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.42v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
-  </svg>
-);
-
-const ETIQUETA: Record<Fuente, string> = { cv: "tu CV", gs: "GS", linkedin: "LinkedIn" };
+/* `gs` ya no tiene botón, pero el backend la sigue sirviendo y el diff puede llegar con ella. */
+const ETIQUETA: Record<FuenteIntegracion, string> = {
+  cv: "tu CV",
+  gs: "GS",
+  linkedin: "LinkedIn",
+  lms: "Universidad Grupo",
+};
 
 /*
  * Los `?? []` de más abajo no son paranoia: `logros` e `intereses` son campos nuevos, y un
@@ -142,50 +139,32 @@ export function IntegracionesPage() {
           puesto={puestoDe(yo.puestoActualId)}
           accesos={accesos}
           onMenu={abrirMenu}
-          onAccionesGenerales={() => setAviso("Todas las acciones")}
+          onFuente={conectar}
+          cargandoFuente={cargando}
+          /* La barra de completitud va ENTRE el hero y la lista de accesos. */
+          barraCompletitud={completitud && (
+            <section className="gs-card" aria-labelledby="sec-completo">
+              <div className="gs-progreso-cab">
+                <b id="sec-completo">Perfil completo</b>
+                <span>{completitud.porcentaje}%</span>
+              </div>
+              <div className={"gs-progreso" + (completitud.porcentaje >= 90 ? " ok" : "")}>
+                <i style={{ width: `${completitud.porcentaje}%` }} />
+              </div>
+              {completitud.faltantes.length > 0 && (
+                <div className="gs-faltantes">
+                  {completitud.faltantes.map((f) => <span className="gs-faltante" key={f}>{f}</span>)}
+                </div>
+              )}
+            </section>
+          )}
         />
 
-        {/* Barra de perfil completo. Va ARRIBA de las tarjetas, como se pidió. */}
-        {completitud && (
-          <section className="gs-card" aria-labelledby="sec-completo">
-            <div className="gs-progreso-cab">
-              <b id="sec-completo">Perfil completo</b>
-              <span>{completitud.porcentaje}%</span>
-            </div>
-            <div className={"gs-progreso" + (completitud.porcentaje >= 90 ? " ok" : "")}>
-              <i style={{ width: `${completitud.porcentaje}%` }} />
-            </div>
-            {completitud.faltantes.length > 0 && (
-              <div className="gs-faltantes">
-                {completitud.faltantes.map((f) => <span className="gs-faltante" key={f}>{f}</span>)}
-              </div>
-            )}
+        {error && (
+          <section className="gs-card">
+            <p className="gs-error" style={{ marginTop: 0 }}>{error}</p>
           </section>
         )}
-
-        {/* Las tres integraciones, ahora como botones pequeños. */}
-        <section className="gs-card" aria-labelledby="sec-fuentes">
-          <div className="gs-card-cab">
-            <h3 id="sec-fuentes">Completa tu perfil por atajo</h3>
-            <button className="gs-ayuda" aria-label="Ayuda sobre las fuentes">
-              <CircleHelp size={15} strokeWidth={2} />
-            </button>
-          </div>
-          <div className="gs-pie">
-            <BotonFuente fuente="cv" icono={<FileUp size={13} />} texto="Sube tu CV"
-              cargando={cargando} onConectar={conectar} />
-            <BotonFuente fuente="gs" icono={<Building2 size={13} />} texto="Obtener información de GS"
-              cargando={cargando} onConectar={conectar} />
-            <BotonFuente fuente="linkedin" icono={<LogoLinkedIn />} texto="Conectar con LinkedIn"
-              cargando={cargando} onConectar={conectar} />
-          </div>
-          <p className="gs-consejo">
-            Si un dato viene de dos sitios manda <b>GS &gt; CV &gt; LinkedIn &gt; lo que escribas a
-            mano</b>. Lo que trae GS queda bloqueado
-            <Lock size={11} style={{ verticalAlign: "-1px", margin: "0 2px" }} /> y no se edita.
-          </p>
-          {error && <p className="gs-error">{error}</p>}
-        </section>
 
         {resultado && (
           <section className="gs-card" aria-labelledby="sec-diff">
@@ -353,22 +332,3 @@ const camposCertificaciones = (tipos: string[]): CampoDef[] => [
   { clave: "caducidad", tipo: "fecha", etiqueta: "Fecha de caducidad", consejo: "Déjala vacía si no caduca" },
 ];
 
-/* ────────────────────────── Botón de fuente ────────────────────────── */
-
-function BotonFuente({ fuente, icono, texto, cargando, onConectar }: {
-  fuente: Fuente;
-  icono: React.ReactNode;
-  texto: string;
-  cargando: Fuente | null;
-  onConectar: (f: Fuente) => void;
-}) {
-  const ocupado = cargando === fuente;
-  return (
-    <button className="gs-btn-sec" disabled={cargando !== null} onClick={() => onConectar(fuente)}
-      style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-      {ocupado
-        ? <><Loader2 size={13} className="girando" /> {fuente === "cv" ? "Analizando…" : "Conectando…"}</>
-        : <>{icono} {texto}</>}
-    </button>
-  );
-}

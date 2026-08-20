@@ -87,6 +87,7 @@ export function AspiracionesPage() {
       objetivoTitulo={camino?.puestoObjetivoTitulo}
       guardando={guardando}
       onElegir={(id) => void elegir(id)}
+      destacado={!camino}
     />
   );
 
@@ -109,6 +110,25 @@ export function AspiracionesPage() {
                 />
                 <ListaBrechas hitos={camino.hitos} />
                 <RutaPasos camino={camino} />
+
+                {/* Segundo selector, ya desplegado: aquí no hay que descubrir nada, sólo cambiar. */}
+                <section className="rm-sec">
+                  <div className="rm-sec-cab">
+                    <div>
+                      <p className="rm-eyebrow">¿TE INTERESA OTRO PUESTO?</p>
+                      <h2>Cambiar de destino</h2>
+                    </div>
+                  </div>
+                  <SelectorDestino
+                    puestos={puestos}
+                    objetivo={objetivo}
+                    objetivoTitulo={camino.puestoObjetivoTitulo}
+                    guardando={guardando}
+                    onElegir={(id) => void elegir(id)}
+                    siempreAbierto
+                    etiqueta="Elige otro puesto"
+                  />
+                </section>
               </>
             ) : (
               /* Sin aspiración no hay camino que pintar: sólo el selector, abierto. Es el caso de
@@ -116,8 +136,8 @@ export function AspiracionesPage() {
               <section className="rm-sec">
                 <div className="rm-sec-cab">
                   <div>
-                    <p className="rm-eyebrow">MI MAPA DE CRECIMIENTO</p>
-                    <h2>Todavía no has elegido a dónde quieres llegar</h2>
+                    <p className="rm-eyebrow">PRIMER PASO</p>
+                    <h2>Elige a dónde quieres llegar</h2>
                   </div>
                 </div>
                 <p style={{
@@ -125,8 +145,8 @@ export function AspiracionesPage() {
                   maxWidth: 460, marginBottom: 18,
                 }}>
                   <Compass size={15} style={{ verticalAlign: "-2px", marginRight: 6, color: "var(--rm-primary)" }} />
-                  Elige un puesto y te enseñamos el camino: qué te falta exactamente y en qué orden
-                  conseguirlo.
+                  Sin un puesto objetivo no hay camino que trazar. Elige uno y te enseñamos qué te
+                  falta exactamente y en qué orden conseguirlo.
                 </p>
                 {selector}
               </section>

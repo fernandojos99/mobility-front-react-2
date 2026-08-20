@@ -9,12 +9,13 @@
  *     de enseñar el retrato de archivo del mockup como si fuera su cara. La forma es idéntica.
  *   - El botón de menú abre el sidebar que ya tiene la aplicación, para no dejar un botón muerto.
  */
+import type { ReactNode } from "react";
 import {
   Bell, BriefcaseBusiness, ChevronRight, FileText, Menu, MoreHorizontal,
-  Search, Share2, Target, UserRound,
+  Search, Target, UserRound,
 } from "lucide-react";
 import { iniciales } from "../../utils/format";
-import { HeroPerfilGS } from "./HeroPerfilGS";
+import { HeroPerfilGS, type Fuente } from "./HeroPerfilGS";
 import type { Colaborador, Puesto } from "../../types/domain";
 
 export interface AccesoPerfil {
@@ -36,10 +37,15 @@ interface Props {
   puesto?: Puesto;
   accesos: AccesoPerfil[];
   onMenu: () => void;
-  onAccionesGenerales: () => void;
+  onFuente: (f: Fuente) => void;
+  cargandoFuente: Fuente | null;
+  /** La barra de "perfil completo". Va ENTRE el hero y los accesos, que es donde se pidió. */
+  barraCompletitud?: ReactNode;
 }
 
-export function CabeceraGS({ yo, puesto, accesos, onMenu, onAccionesGenerales }: Props) {
+export function CabeceraGS({
+  yo, puesto, accesos, onMenu, onFuente, cargandoFuente, barraCompletitud,
+}: Props) {
   return (
     <>
       <header className="gs-header">
@@ -68,15 +74,9 @@ export function CabeceraGS({ yo, puesto, accesos, onMenu, onAccionesGenerales }:
         </div>
       </section>
 
-      <HeroPerfilGS
-        yo={yo}
-        puesto={puesto}
-        accion={
-          <button className="gs-acciones-btn" onClick={onAccionesGenerales}>
-            <Share2 size={15} /> Todas las acciones
-          </button>
-        }
-      />
+      <HeroPerfilGS yo={yo} puesto={puesto} onFuente={onFuente} cargandoFuente={cargandoFuente} />
+
+      {barraCompletitud}
 
       <section className="gs-lista">
         {accesos.map(({ label, icon: Icon, onClick }) => (

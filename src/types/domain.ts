@@ -168,7 +168,7 @@ export interface Colaborador {
   talento?: Talento;
   aspiracion?: Aspiracion;
   perfilActualizado: string;
-  fuentes?: { cv?: string; gs?: string; linkedin?: string };
+  fuentes?: { cv?: string; gs?: string; linkedin?: string; lms?: string };
 }
 
 export interface Puesto {
@@ -291,8 +291,11 @@ export interface Completitud { porcentaje: number; faltantes: string[]; }
 
 export interface CambioCampo { campo: string; etiqueta: string; antes: string; despues: string; }
 
+/** Las fuentes con las que se puede rellenar el perfil. `gs` ya no tiene botón, pero sigue existiendo. */
+export type FuenteIntegracion = "cv" | "gs" | "linkedin" | "lms";
+
 export interface ResultadoIntegracion {
-  fuente: "cv" | "gs" | "linkedin";
+  fuente: FuenteIntegracion;
   colaborador: Colaborador;
   cambios: CambioCampo[];
   bloqueados: string[];

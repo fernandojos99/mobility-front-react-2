@@ -4,21 +4,11 @@
  * No hay autenticación: el `<select>` de colaborador ES la sesión. Cambiar de persona recarga la
  * página a propósito, para que ninguna pantalla se quede con datos derivados del anterior.
  */
+import { X } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { X, UserRound, Target, Compass, Briefcase, SlidersHorizontal } from "lucide-react";
+import { NAV_COLABORADOR, NAV_GENERALISTA } from "./navegacion";
 import { useSesion, type Rol } from "../../contexts/SesionContext";
 import { useData } from "../../store/DataProvider";
-
-const NAV_COLABORADOR = [
-  { to: "/yo", icon: UserRound, label: "Mi información" },
-  { to: "/yo/gap", icon: Target, label: "Mi desarrollo" },
-  { to: "/yo/aspiracion", icon: Compass, label: "Mis aspiraciones" },
-  { to: "/oportunidades", icon: Briefcase, label: "Oportunidades" },
-];
-
-const NAV_GENERALISTA = [
-  { to: "/generalista", icon: SlidersHorizontal, label: "Reglas de movilidad" },
-];
 
 interface Props { open: boolean; onClose: () => void; }
 

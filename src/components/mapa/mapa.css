@@ -68,9 +68,12 @@
 .hoja p{margin:0 0 12px; font-size:13.5px; color:var(--ink2); line-height:1.5;}
 .hoja h3{font-size:12px; text-transform:uppercase; letter-spacing:.1em;
   color:var(--gray); margin-bottom:8px;}
-.hoja-desbloqueo{display:flex; align-items:center; gap:7px; background:#EEF1F3;
+/* En flujo normal, NO flex: con `display:flex` el <b> del título se convertía en una columna
+   aparte y el punto final caía suelto en una tercera. El icono va en línea con la frase. */
+.hoja-desbloqueo{display:block; background:#EEF1F3; margin-top:12px;
   border:1.5px solid #D5DBDF; border-radius:var(--r-2); padding:10px 12px;
-  color:var(--lock-deep); font-size:13px;}
+  color:var(--lock-deep); font-size:13px; line-height:1.5;}
+.hoja-desbloqueo svg{vertical-align:-2px; margin-right:6px; flex-shrink:0;}
 .hoja-pasos{list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:16px;}
 .hoja-pasos li{font-size:13.5px; color:var(--ink2); line-height:1.45; display:flex; gap:9px;}
 .hoja-pasos li::before{content:"◆"; color:var(--road-edge); flex-shrink:0;}
@@ -81,3 +84,27 @@
   .pulso{animation:none; opacity:.3;}
   .avatar-mapa .salto{animation:none;}
 }
+
+/* ───────── Detalle del hito, ampliado ─────────
+   Desde que la pantalla del mapa dejó de repetir el camino en texto, esta hoja es el único sitio
+   donde se lee el detalle de un paso, así que muestra también nivel y prioridad. */
+.hoja-paso{margin-left:auto; font-size:11px; color:var(--gray); font-weight:600;}
+.hoja-campo{display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  font-size:11.5px; color:var(--gray); margin-bottom:8px;}
+.hoja-prio{border-radius:99px; padding:2px 8px; font-size:10px; font-weight:700;
+  text-transform:capitalize;}
+.hoja-prio.alta{background:var(--bad-soft); color:var(--bad);}
+.hoja-prio.media{background:var(--gold-soft); color:#7A5B00;}
+.hoja-prio.baja{background:var(--ok-soft); color:var(--ok);}
+
+.hoja-niveles{display:flex; gap:14px; margin-top:12px;}
+.hoja-niveles > div{flex:1; min-width:0;}
+.hoja-niveles span{font-size:11px; color:var(--gray);}
+.hoja-niveles b{color:var(--ink2); font-size:12px;}
+/* Mismo degradado que el resto de la aplicación, vía la variable de `gs.css`. */
+.hoja-term{position:relative; height:.6875rem; border-radius:999px; margin-top:7px;
+  background:var(--gs-termometro, linear-gradient(90deg,#df1717,#f4b51d,#16af21));
+  box-shadow:inset 0 0 0 1px #ffffffaa;}
+.hoja-term-marca{position:absolute; top:-5px; width:0; height:0; transform:translateX(-50%);
+  border-left:6px solid transparent; border-right:6px solid transparent;
+  border-top:10px solid #172238;}

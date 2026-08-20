@@ -1,0 +1,83 @@
+/*
+  Estilos del mapa. Portados de `insumos/mapa-niveles.html`.
+  La escena es móvil de nacimiento: `min(460px,100vw)` con scroll vertical. En escritorio se ve
+  como una columna centrada, que es exactamente lo que se quiere.
+*/
+.mapa{position:relative; display:flex; flex-direction:column; align-items:center;}
+
+.mapa-barra{
+  width:min(460px,100vw); background:var(--grass-deep); color:#EFEAD8;
+  padding:11px 18px; border-radius:var(--r-3) var(--r-3) 0 0;
+  font-size:13.5px; font-weight:500; text-align:center;
+}
+.mapa-barra b{color:var(--star); font-size:16px;}
+
+.mapa-escena{
+  position:relative; width:min(460px,100vw); height:min(72vh,720px);
+  overflow-y:auto; overflow-x:hidden; background:#6dbe45;
+  border-radius:0 0 var(--r-3) var(--r-3);
+  box-shadow:0 0 40px rgba(0,0,0,.35) inset;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.mapa-escena::-webkit-scrollbar{display:none;}
+.mapa-escena svg{display:block; width:100%; height:auto;}
+
+/* ── El camino, con volumen: cuatro trazos del mismo path ── */
+.via-canto{fill:none; stroke:#a9701f; stroke-width:44; stroke-linecap:round; stroke-linejoin:round;}
+.via-borde{fill:none; stroke:#dea23c; stroke-width:44; stroke-linecap:round; stroke-linejoin:round;}
+.via-cara {fill:none; stroke:#f8d074; stroke-width:34; stroke-linecap:round; stroke-linejoin:round;}
+.via-raya {fill:none; stroke:#fff4cd; stroke-width:3;  stroke-linecap:round;
+           stroke-dasharray:2 24; opacity:.75;}
+
+/* ── Nodos ── */
+.nodo{cursor:pointer; outline:none;}
+.nodo .cuerpo{transform-box:fill-box; transform-origin:center; transition:transform .12s ease;}
+.nodo:hover .cuerpo{transform:translateY(-3px);}
+.nodo:active .cuerpo{transform:translateY(2px);}
+.nodo:focus-visible .aro{stroke:#12212b; stroke-width:4;}
+.nodo text{font-weight:700; font-size:20px; fill:#fff; text-anchor:middle;
+  paint-order:stroke; stroke:rgba(0,0,0,.2); stroke-width:3px;}
+
+.pulso{fill:none; stroke:#fff; stroke-width:3; opacity:0;
+  transform-box:fill-box; transform-origin:center;
+  animation:pulso 2s ease-out infinite;}
+@keyframes pulso{0%{opacity:.85; transform:scale(.8)} 100%{opacity:0; transform:scale(1.7)}}
+
+/* ── Avatar ── */
+.avatar-mapa{pointer-events:none;}
+.avatar-mapa .salto{transform-box:fill-box; transform-origin:bottom center;
+  animation:salto 1.6s ease-in-out infinite;}
+@keyframes salto{
+  0%,100%{transform:translateY(0) scaleY(1)}
+  45%{transform:translateY(-9px) scaleY(1.04)}
+  60%{transform:translateY(-4px) scaleY(.97)}
+}
+
+/* ── Hoja inferior ── */
+.hoja{
+  position:fixed; left:50%; bottom:0; transform:translate(-50%,120%);
+  width:min(460px,100vw); background:#FFFAF0; border-radius:var(--r-4) var(--r-4) 0 0;
+  padding:18px 20px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:0 -8px 30px rgba(0,0,0,.35);
+  transition:transform .28s cubic-bezier(.2,.8,.3,1); z-index:150;
+  max-height:70vh; overflow-y:auto;
+}
+.hoja.abierta{transform:translate(-50%,0);}
+.hoja-cabeza{margin-bottom:8px;}
+.hoja h2{margin:0 0 6px; font-size:20px; color:var(--ink);}
+.hoja p{margin:0 0 12px; font-size:13.5px; color:var(--ink2); line-height:1.5;}
+.hoja h3{font-size:12px; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--gray); margin-bottom:8px;}
+.hoja-desbloqueo{display:flex; align-items:center; gap:7px; background:#EEF1F3;
+  border:1.5px solid #D5DBDF; border-radius:var(--r-2); padding:10px 12px;
+  color:var(--lock-deep); font-size:13px;}
+.hoja-pasos{list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:16px;}
+.hoja-pasos li{font-size:13.5px; color:var(--ink2); line-height:1.45; display:flex; gap:9px;}
+.hoja-pasos li::before{content:"◆"; color:var(--road-edge); flex-shrink:0;}
+.hoja-acciones{display:flex; gap:10px;}
+.hoja-acciones .btn{flex:1;}
+
+@media (prefers-reduced-motion:reduce){
+  .pulso{animation:none; opacity:.3;}
+  .avatar-mapa .salto{animation:none;}
+}

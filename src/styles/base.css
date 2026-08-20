@@ -1,0 +1,264 @@
+/*
+  Design system de Mapa de Carrera.
+
+  Es el `base.css` de Radar de Candidatos con la piel cambiada: MISMOS nombres de clase
+  (.card .chip .btn .tag .field .tabs .ftl .modal .switch .trow .help), de modo que repintar la
+  paleta no obliga a tocar ni una página. Se cambia la piel, no el esqueleto.
+
+  La piel actual es la de Grupo Salinas, portada del componente de referencia de `perfil-de-personas`:
+  superficies neutras, azul marino para el chrome y azul de acción para lo pulsable.
+
+  Tres reglas que no se tocan:
+   1. `--ai` (índigo) es EXCLUSIVO de elementos de IA. En cuanto aparece en otro sitio deja de
+      significar nada.
+   2. Los tokens del MAPA (--road* --grass* --node* --star* --lock*) son colores de ILUSTRACIÓN y
+      viven sólo dentro de `components/mapa/`. El chrome de la aplicación usa --brand / --navy /
+      --chrome-dark. Antes ambas cosas compartían `--road-edge` y `--grass-deep`, y por eso repintar
+      la interfaz despintaba el mapa.
+   3. El 90 % del uso es en MÓVIL. Lo que se rompa a 390 px está roto, aunque se vea bien a 1180.
+*/
+:root{
+  /* ── Marca Grupo Salinas ── */
+  --brand:#087EE8; --brand-dark:#066BC5; --brand-soft:#E7F2FD;
+  --navy:#27384B; --navy-deep:#17304D;
+  /* El chrome oscuro: barra lateral, toast, avatar. Deliberadamente separado del mapa. */
+  --chrome-dark:#17304D;
+  --gold:#E8B32F; --gold-soft:#FDF3DC; --gold-dark:#8A6400;
+
+  /* ── Ilustración del mapa 2.5D. NO usar fuera de components/mapa/. ── */
+  --road:#F8D074; --road-edge:#DEA23C; --road-deep:#A9701F; --road-line:#FFF4CD;
+  --grass:#6DBE45; --grass-mid:#5AA838; --grass-deep:#1F3318;
+  --node:#E8392E; --node-deep:#9C1C15;
+  --lock:#9AA7B0; --lock-deep:#6C7A83;
+  --star:#FFD23D; --star-edge:#EDA200;
+
+  /* ── Texto y superficies ── */
+  --ink:#27384B; --ink2:#4A5A6E; --paper:#FFFFFF; --bg:#F6F7F9;
+  --line:#E5E5E5; --gray:#737373;
+
+  /* ── Semánticos: los MISMOS que Radar, a propósito ── */
+  --ok:#1E7A3C; --ok-soft:#E7F4EB; --bad:#B3261E; --bad-soft:#FCEBEA; --warn:#946F00;
+  --ai:#4338CA; --ai-soft:#EEF0FF;
+
+  /* ── Forma. El radio base del componente de referencia es 10px (--radius:.625rem). ── */
+  --r-1:8px; --r-2:10px; --r-3:14px; --r-4:18px; --r-pill:99px;
+  --shadow-card:0 1px 2px rgba(23,48,77,.06), 0 1px 3px rgba(23,48,77,.05);
+  --shadow-modal:0 24px 60px rgba(23,48,77,.35);
+  --overlay:rgba(23,48,77,.55);
+  --font-body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{background:var(--bg);}
+
+.mc{font-family:var(--font-body); background:var(--bg); color:var(--ink);
+    min-height:100vh; display:flex; font-size:14px;}
+.mc h1,.mc h2,.mc h3{letter-spacing:-0.012em;}
+.mc button{font-family:inherit; cursor:pointer;}
+.mc a{color:inherit;}
+.mc input,.mc select,.mc textarea{font-family:inherit; font-size:16px; color:var(--ink);
+  border:1px solid var(--line); border-radius:var(--r-2); padding:11px 13px;
+  background:var(--paper); width:100%; outline:none;}
+/* 16px arriba no es capricho: por debajo de eso iOS hace zoom al enfocar un campo. */
+.mc input:focus,.mc select:focus,.mc textarea:focus{border-color:var(--brand);
+  box-shadow:0 0 0 3px var(--brand-soft);}
+.mc label{font-size:12px; font-weight:600; color:var(--ink2); display:block; margin-bottom:5px;}
+
+/* ───────── Layout ───────── */
+.side{width:236px; background:var(--chrome-dark); color:#E8EEF5; padding:20px 14px;
+  display:flex; flex-direction:column; gap:4px; flex-shrink:0; min-height:100vh; position:sticky; top:0;}
+.logo{display:flex; align-items:center; gap:10px; padding:4px 8px 18px;}
+.logo .mark{width:36px; height:36px; border-radius:var(--r-2); background:var(--brand);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:17px;}
+.logo b{font-size:16px; letter-spacing:.02em; display:block; line-height:1.15;}
+.logo span{display:block; font-size:9.5px; color:#8FA6BE; letter-spacing:.14em; text-transform:uppercase;}
+.nav-item{display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:var(--r-2);
+  color:#A9BCCE; background:none; border:none; font-size:13.5px; font-weight:500;
+  text-align:left; width:100%; text-decoration:none;}
+.nav-item:hover{background:#22415F; color:#E8EEF5;}
+.nav-item.on{background:var(--brand); color:#fff; font-weight:700;}
+.rolebox{margin-top:auto; background:#22415F; border-radius:var(--r-3); padding:12px;}
+.rolebox p{font-size:9.5px; letter-spacing:.12em; color:#8FA6BE; margin-bottom:8px; text-transform:uppercase;}
+.rolebox select{background:var(--chrome-dark); color:#E8EEF5; border-color:#3A5B7D; font-size:13px;}
+.rolebox select:focus{border-color:var(--brand); box-shadow:none;}
+.rolebox .field{margin-bottom:10px;}
+.rolebox .field:last-child{margin-bottom:0;}
+.rolebox label{color:#8FA6BE;}
+
+.main{flex:1; display:flex; flex-direction:column; min-width:0;}
+.topbar{background:var(--paper); border-bottom:1px solid var(--line); padding:13px 26px;
+  display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:40;}
+.topbar h2{font-size:17px; font-weight:700;}
+.crumb{font-size:11.5px; color:var(--gray);}
+.iconbtn{background:var(--bg); border:1px solid var(--line); border-radius:var(--r-2);
+  width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--ink2);}
+.iconbtn:hover{border-color:var(--brand); color:var(--brand);}
+.menu-btn,.side-close,.side-backdrop{display:none;}
+.side-close{margin-left:auto; background:transparent; border:none; color:#8FA6BE;}
+.content{padding:24px 26px 80px; max-width:1180px; width:100%; margin:0 auto;}
+/* `/yo` trae su propio marco (ver AppShell): el shell no le pone ni padding ni tope de ancho. */
+.content.content-plano{padding:0; max-width:none;}
+
+/* ───────── Tarjeta y botones ───────── */
+.card{background:var(--paper); border:1px solid var(--line); border-radius:var(--r-3);
+  padding:20px; box-shadow:var(--shadow-card);}
+.card+.card{margin-top:16px;}
+.card.ok{border-color:#BBDFC6; background:var(--ok-soft);}
+.card.lock{border-color:#D5DBDF; background:#F6F8F9;}
+
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  border-radius:var(--r-2); padding:11px 18px; font-size:14px; font-weight:600;
+  border:1px solid transparent; box-shadow:0 1px 2px rgba(23,48,77,.10);
+  transition:transform .1s ease, background .15s ease; text-decoration:none;
+  min-height:44px;}
+.btn:active{transform:translateY(1px);}
+.btn.gold{background:var(--brand); color:#fff;}
+.btn.gold:hover{background:var(--brand-dark);}
+.btn.dark{background:var(--navy); color:#fff;}
+.btn.dark:hover{background:var(--navy-deep);}
+.btn.grass{background:#1E7A3C; color:#fff;}
+.btn.grass:hover{background:#18642F;}
+.btn.ai{background:var(--ai); color:#fff;}
+.btn.ghost{background:var(--paper); border-color:var(--line); color:var(--ink2); box-shadow:none;}
+.btn.ghost:hover{border-color:var(--brand); color:var(--brand);}
+.btn.sm{padding:8px 13px; font-size:12.5px; min-height:40px;}
+.btn:disabled{opacity:.45; cursor:not-allowed; transform:none; filter:none;}
+
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600;
+  padding:4px 11px; border-radius:var(--r-pill); background:var(--bg);
+  border:1.5px solid var(--line); color:var(--ink2);}
+.chip.gold{background:var(--brand-soft); border-color:#B9DCFA; color:var(--brand-dark);}
+.chip.ok{background:var(--ok-soft); border-color:#BBDFC6; color:var(--ok);}
+.chip.bad{background:var(--bad-soft); border-color:#F0C4C1; color:var(--bad);}
+.chip.ai{background:var(--ai-soft); border-color:#C7CBF5; color:var(--ai);}
+.chip.lock{background:#EEF1F3; border-color:#D5DBDF; color:var(--lock-deep);}
+
+.tag{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;
+  padding:6px 12px; border-radius:var(--r-pill); background:var(--paper);
+  border:1px solid var(--line); color:var(--ink2);}
+.tag.on{background:var(--brand-soft); border-color:var(--brand); color:var(--brand-dark);}
+.tagpick{display:flex; flex-wrap:wrap; gap:6px;}
+
+.field{margin-bottom:14px;}
+.help{font-size:11.5px; color:var(--gray); margin-top:4px; display:flex; align-items:center; gap:5px;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+
+.tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:18px; overflow-x:auto;}
+.tab{background:none; border:none; padding:11px 15px; font-size:13.5px; font-weight:600;
+  color:var(--gray); border-bottom:3px solid transparent; white-space:nowrap;}
+.tab.on{color:var(--brand); border-bottom-color:var(--brand);}
+
+/* Timeline reutilizable: lo usan el gap y el resumen del camino */
+.ftl{display:flex; align-items:flex-start; width:100%;}
+.ftl-step{flex:1; display:flex; flex-direction:column; align-items:center; position:relative; text-align:center;}
+.ftl-step:not(:last-child)::after{content:""; position:absolute; top:15px; left:50%;
+  width:100%; height:3px; background:var(--line); z-index:0;}
+.ftl-step.done::after{background:var(--ok);}
+.ftl-node{position:relative; z-index:1; width:32px; height:32px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; background:var(--paper);
+  border:3px solid var(--line); color:var(--gray); font-size:12px; font-weight:700;}
+.ftl-step.done .ftl-node{background:var(--ok); border-color:var(--ok); color:#fff;}
+.ftl-step.now .ftl-node{border-color:var(--brand); color:var(--brand-dark);
+  background:var(--brand-soft); box-shadow:0 0 0 4px var(--brand-soft);}
+.ftl-label{margin-top:6px; font-size:11.5px; font-weight:600; color:var(--ink2); line-height:1.2;}
+
+/* ───────── Modal ───────── */
+.modal-bg{position:fixed; inset:0; background:var(--overlay); z-index:150;
+  display:flex; align-items:center; justify-content:center; padding:20px;}
+.modal{background:var(--paper); color:var(--ink); border-radius:var(--r-4); max-width:640px;
+  width:100%; max-height:88vh; overflow:auto; padding:24px; position:relative; box-shadow:var(--shadow-modal);}
+.modal.wide{max-width:860px;}
+.xclose{position:absolute; top:14px; right:14px; background:var(--bg); border:none;
+  border-radius:var(--r-1); width:32px; height:32px; display:flex; align-items:center;
+  justify-content:center; color:var(--gray);}
+
+/* ───────── Piezas sueltas ───────── */
+.ring{position:relative; flex-shrink:0;}
+.ring svg{transform:rotate(-90deg);}
+.ring b{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:12.5px;}
+.avatar{width:40px; height:40px; border-radius:99px; background:var(--navy);
+  color:var(--gold); display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:13px; flex-shrink:0; object-fit:cover;}
+
+/* Caja de IA. Índigo, y SOLO aquí. */
+.aibox{background:var(--ai-soft); border:2px solid #C7CBF5; border-radius:var(--r-3); padding:16px;}
+.aibox h4{font-size:13px; color:var(--ai); display:flex; align-items:center; gap:7px; margin-bottom:10px;}
+.aibox ul{list-style:none; display:flex; flex-direction:column; gap:9px;}
+.aibox li{font-size:13px; line-height:1.5; color:var(--ink2); display:flex; gap:9px;}
+.aibox li::before{content:"→"; color:var(--ai); font-weight:700; flex-shrink:0;}
+
+/* Barra de avance sólida, estilo juego */
+.barra{height:14px; border-radius:var(--r-pill); background:var(--line); overflow:hidden;}
+.barra i{display:block; height:100%; border-radius:var(--r-pill);
+  background:linear-gradient(90deg, var(--brand), #3FA0F0); transition:width .5s cubic-bezier(.2,.8,.3,1);}
+.barra.ok i{background:linear-gradient(90deg,#2E9E3F,#1E7A3C);}
+
+.skillbar{display:flex; flex-wrap:wrap; gap:6px;}
+.trow{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1.5px solid var(--line);}
+.trow:last-child{border-bottom:none;}
+.trow-main{flex:1; min-width:0;}
+.switch{width:44px; height:26px; border-radius:var(--r-pill); background:var(--line);
+  border:none; position:relative; flex-shrink:0; transition:background .18s ease;}
+.switch::after{content:""; position:absolute; top:3px; left:3px; width:20px; height:20px;
+  border-radius:99px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .18s ease;}
+.switch.on{background:var(--brand);}
+.switch.on::after{transform:translateX(18px);}
+
+.vac-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:200;
+  background:var(--navy); color:#fff; padding:12px 20px; border-radius:var(--r-pill);
+  font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);}
+.vacio{text-align:center; padding:40px 20px; color:var(--gray);}
+.vacio h3{color:var(--ink); font-size:16px; margin-bottom:6px;}
+.vacio p{font-size:13.5px; max-width:420px; margin:0 auto 16px;}
+.spin{width:34px; height:34px; border:3px solid var(--line); border-top-color:var(--brand);
+  border-radius:99px; animation:spin .8s linear infinite; margin:40px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ───────── Responsividad. El corte principal es 900 px, como en Radar. ───────── */
+@media(max-width:1200px){ .vac-grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:900px){
+  .grid2{grid-template-columns:1fr;}
+  .grid3{grid-template-columns:1fr 1fr;}
+  .vac-grid{grid-template-columns:1fr;}
+  /* El sidebar deja de ser columna y pasa a ser un drawer deslizable. */
+  .side{position:fixed; top:0; left:0; height:100dvh; min-height:0; width:min(84vw,300px);
+    z-index:120; transform:translateX(-100%); transition:transform .22s ease;
+    box-shadow:0 0 44px rgba(0,0,0,.4); overflow-y:auto;}
+  .side.open{transform:none;}
+  .side-backdrop{display:block; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:110;}
+  .menu-btn{display:inline-flex; flex-shrink:0;}
+  .side-close{display:inline-flex; width:auto; height:auto; padding:4px;}
+  .content{padding:18px 15px 90px;}
+  .content.content-plano{padding:0;}
+  .topbar{padding:12px 15px; gap:10px;}
+  .topbar h2{font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+}
+@media(max-width:560px){
+  .grid3{grid-template-columns:1fr;}
+  .ftl-label{font-size:10.5px;}
+  .trow{flex-wrap:wrap;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;}
+}
+
+/* Icono girando dentro de un botón mientras se espera a una fuente. */
+.girando{animation:spin .9s linear infinite;}
+
+/* Deslizador: el `input` genérico le pone borde y relleno, que en un range estorban. */
+.mc input[type=range]{-webkit-appearance:none; appearance:none; border:none; padding:0;
+  background:transparent; height:22px; box-shadow:none;}
+.mc input[type=range]:focus{box-shadow:none;}
+.mc input[type=range]::-webkit-slider-runnable-track{height:10px; border-radius:var(--r-pill);
+  background:linear-gradient(90deg,var(--brand),#3FA0F0);}
+.mc input[type=range]::-moz-range-track{height:10px; border-radius:var(--r-pill);
+  background:linear-gradient(90deg,var(--brand),#3FA0F0);}
+.mc input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; appearance:none;
+  width:22px; height:22px; border-radius:99px; background:#fff; margin-top:-6px;
+  border:3px solid var(--brand); box-shadow:0 1px 3px rgba(23,48,77,.25); cursor:pointer;}
+.mc input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:99px;
+  background:#fff; border:3px solid var(--brand); cursor:pointer;}

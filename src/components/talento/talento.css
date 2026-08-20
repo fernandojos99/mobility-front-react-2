@@ -1,0 +1,140 @@
+/*
+  Perfil de talento (`/yo/gap`). Las secciones vienen del dashboard
+  `front/employee/employee-performance-dashboard/`, pero SU PALETA NO: aquel usa marino #123b7a con
+  acento carmesí #c81f37 sobre fondo #f4f6f8, y aquí manda el azul #087ee8 y los grises neutros de
+  `/yo`. Se copia la estructura y las piezas de dato; se cambia la piel.
+
+  Se apoya en los tokens `--gs-*` que declara `gs.css`, así que esta hoja SIEMPRE va dentro de `.gs`.
+
+  Mobile-first (`min-width`), con los mismos cortes que `gs.css`: 640 y 1024.
+*/
+
+/* Rejilla. En el original es 1.1fr/1fr fijo; aquí una columna hasta escritorio. */
+.tl-grid{display:grid; grid-template-columns:1fr; gap:1rem; align-items:start;}
+.tl-col{display:flex; flex-direction:column; gap:1rem; min-width:0;}
+
+/* Cabecera de sección: el cuadro de icono del original, en azul de marca en vez de carmesí. */
+.tl-tit{display:flex; align-items:center; gap:.5625rem; margin-bottom:.875rem;}
+.tl-tit h3{color:#27384b; font-size:.9375rem; letter-spacing:-.02em; font-weight:700; flex:1; min-width:0;}
+.tl-icono{color:#fff; background:#087ee8; border-radius:var(--gs-radius-md);
+  width:1.6875rem; height:1.6875rem; display:grid; place-items:center; flex-shrink:0;}
+
+/* ───────── Desempeño: tabla + termómetro ───────── */
+.tl-tabla{font-size:.75rem;}
+.tl-tabla-cab,.tl-tabla-fila{display:grid; grid-template-columns:.6fr 1fr 1fr 1.1fr;
+  gap:.5rem; align-items:center;}
+.tl-tabla-cab{color:#fff; background:#8a94a6; border-radius:var(--gs-radius-md);
+  padding:.4375rem .5rem; font-weight:700; text-align:center; font-size:.625rem;}
+.tl-tabla-fila{padding:.625rem .5rem; border-bottom:1px dashed var(--gs-border); text-align:center;}
+.tl-tabla-fila:last-child{border-bottom:0;}
+.tl-tabla-fila strong{font-size:.8125rem;}
+/* Píldora de nivel. El original las pinta todas verdes; aquí el color dice qué tan alto es. */
+.tl-nivel{border-radius:var(--gs-radius-md); padding:.3125rem .25rem; font-size:.625rem;
+  font-weight:600; display:block;}
+.tl-nivel.alto{background:#E7F4EB; color:#1E7A3C;}
+.tl-nivel.medio{background:#FDF3DC; color:#7A5B00;}
+.tl-nivel.bajo{background:#FCEBEA; color:#B3261E;}
+
+/* Termómetro. El degradado rojo→verde se conserva: es una escala de dato, no de marca. */
+.tl-escala{margin-top:1.125rem;}
+.tl-barra{position:relative; height:.8125rem; border-radius:999px;
+  background:linear-gradient(90deg,#df1717 0%,#ee5c19 18%,#f4b51d 38%,#f8dc3c 58%,#72c92b 78%,#16af21 100%);
+  box-shadow:inset 0 0 0 1px #ffffffaa;}
+/* La marca se coloca por `left` en línea, según el dato. */
+.tl-marca{position:absolute; top:-5px; width:0; height:0; transform:translateX(-50%);
+  border-left:7px solid transparent; border-right:7px solid transparent; border-top:12px solid #172238;}
+.tl-escala-rot{display:flex; justify-content:space-between; color:var(--gs-muted-foreground);
+  font-size:.625rem; margin-top:.5rem;}
+
+/* ───────── IPN: gráfica de línea ───────── */
+.tl-gr{position:relative;}
+.tl-gr svg{width:100%; height:9.5rem; display:block; overflow:visible;}
+.tl-gr-rejilla{stroke:#edf0f3; stroke-width:1;}
+.tl-gr-eje{fill:var(--gs-muted-foreground); font-size:9px;}
+.tl-gr-linea{fill:none; stroke:#087ee8; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+/* Anillo de superficie sobre la marca, para que no se funda con la línea al solaparse. */
+.tl-gr-punto{fill:#087ee8; stroke:#fff; stroke-width:2;}
+.tl-gr-punto.on{fill:#066bc5;}
+.tl-gr-cruz{stroke:#8a94a6; stroke-width:1; stroke-dasharray:3 3;}
+.tl-gr-golpe{fill:transparent; cursor:pointer;}
+.tl-globo{position:absolute; transform:translate(-50%,-100%); pointer-events:none;
+  background:#27384b; color:#fff; border-radius:var(--gs-radius-md); padding:.375rem .5rem;
+  font-size:.6875rem; line-height:1.3; white-space:nowrap; box-shadow:var(--gs-shadow-lg); z-index:2;}
+.tl-globo b{display:block; font-size:.8125rem;}
+/* Los cuatro valores bajo la gráfica hacen de tabla: por eso NO se rotula cada punto. */
+.tl-gr-val{display:grid; grid-template-columns:repeat(4,1fr); text-align:center;
+  font-weight:700; font-size:.75rem; gap:.25rem; margin-top:.25rem;}
+.tl-gr-val small{display:block; color:var(--gs-muted-foreground); font-size:.625rem;
+  font-weight:500; margin-top:.3125rem;}
+
+/* ───────── Psicometrías ───────── */
+.tl-psico{display:grid; grid-template-columns:1fr; gap:.625rem;}
+.tl-psico > div{display:grid; grid-template-columns:7rem 1fr; align-items:center; gap:.625rem;}
+.tl-psico b{color:#fff; background:#8a94a6; border-radius:999px; text-align:center;
+  padding:.4375rem .25rem; font-size:.6875rem;}
+.tl-psico span{font-size:.75rem; color:#515b6b; line-height:1.6;}
+
+/* ───────── Felicidad ───────── */
+.tl-metrica > div:first-child{display:flex; justify-content:space-between; align-items:baseline;
+  color:var(--gs-muted-foreground); font-size:.8125rem;}
+.tl-metrica strong{color:#087ee8; font-size:1.5625rem;}
+.tl-metrica small{color:var(--gs-muted-foreground); font-size:.6875rem;}
+
+/* ───────── Valores ───────── */
+.tl-valores{display:flex; flex-direction:column;}
+.tl-valores > div{display:grid; grid-template-columns:1fr 5.75rem; align-items:center;
+  min-height:2.1875rem; gap:.625rem; border-bottom:1px dashed var(--gs-border); font-size:.75rem;}
+.tl-valores > div:last-child{border-bottom:0;}
+
+/* ───────── Aprendizaje ───────── */
+.tl-aprend{border:1px solid var(--gs-border); border-radius:var(--gs-radius-md); overflow:hidden;}
+.tl-aprend > div{display:grid; grid-template-columns:1fr 2.625rem 2.625rem;
+  border-bottom:1px solid var(--gs-border); align-items:center; font-size:.6875rem;}
+.tl-aprend > div:last-child{border-bottom:0;}
+.tl-aprend span{padding:.625rem;}
+.tl-aprend b{padding:.625rem .25rem; text-align:center; border-left:1px solid var(--gs-border);
+  font-weight:600;}
+.tl-aprend b.pend{color:var(--gs-muted-foreground);}
+.tl-leyenda{display:flex; justify-content:flex-end; gap:.875rem;
+  color:var(--gs-muted-foreground); font-size:.625rem; margin-top:.5625rem;}
+
+/* ───────── Coaching ───────── */
+.tl-mini{display:grid; grid-template-columns:1fr 1fr; gap:.625rem;}
+.tl-mini > div{display:flex; justify-content:space-between; align-items:center;
+  background:var(--gs-muted); border-radius:var(--gs-radius-md); padding:.75rem; font-size:.75rem;}
+.tl-mini strong{color:#27384b; font-size:1rem;}
+
+/* ───────── Recomendación de la IA ─────────
+   Sigue siendo índigo: es la convención del proyecto —si es índigo, lo sugirió el sistema—, y por
+   eso el color no se negocia. Lo que cambia es la forma: cabecera propia y una fila por consejo,
+   en vez del bloque con viñetas «→» de antes. */
+.tl-ia{border-color:#D8DBF7;}
+.tl-ia .tl-icono{background:var(--ai);}
+.tl-ia-etiqueta{font-size:.5625rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--ai); background:var(--ai-soft); border-radius:999px; padding:.1875rem .5rem;
+  flex-shrink:0; white-space:nowrap;}
+.tl-ia-fila{display:flex; gap:.6875rem; padding:.75rem 0;
+  border-bottom:1px solid color-mix(in oklab, var(--gs-border) 70%, transparent);}
+.tl-ia-fila:last-child{border-bottom:0;}
+.tl-ia-num{width:1.375rem; height:1.375rem; border-radius:999px; background:var(--ai-soft);
+  color:var(--ai); font-size:.625rem; font-weight:700; display:grid; place-items:center;
+  flex-shrink:0; margin-top:.0625rem;}
+.tl-ia-txt{flex:1; min-width:0; font-size:.8125rem; line-height:1.5; color:var(--gs-foreground);}
+.tl-ia-txt b{display:block; font-weight:700; margin-bottom:.125rem;}
+.tl-ia-txt span{color:var(--gs-muted-foreground); font-size:.75rem;}
+.tl-ia-pie{margin-top:.75rem; font-size:.6875rem; color:var(--gs-muted-foreground); line-height:1.45;}
+
+/* ───────── Pie ───────── */
+.tl-pie{display:flex; justify-content:center; align-items:center; gap:.25rem;
+  font-size:.6875rem; color:var(--gs-muted-foreground); padding:1.5rem 0 1.5rem;}
+
+@media(min-width:640px){
+  .tl-tabla-cab,.tl-tabla-fila{font-size:.75rem;}
+  .tl-tabla-cab{font-size:.6875rem;}
+  .tl-psico{grid-template-columns:repeat(3,1fr);}
+  .tl-psico > div{display:flex; flex-direction:column; gap:.5625rem;}
+  .tl-gr svg{height:9.6875rem;}
+}
+@media(min-width:1024px){
+  .tl-grid{grid-template-columns:1.1fr 1fr;}
+}

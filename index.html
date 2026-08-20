@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mapa de Carrera</title>
+    <meta name="theme-color" content="#17304D" />
+    <!--
+      No se carga ninguna tipografía remota: la piel de Grupo Salinas usa la pila del sistema
+      (ver `--font-body` en base.css). Antes se cargaba Fredoka desde Google Fonts para el look de
+      juego; se quitó al adoptar la paleta corporativa, y de paso se ahorra una petición bloqueante
+      en móvil, que es donde ocurre el 90 % del uso.
+    -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

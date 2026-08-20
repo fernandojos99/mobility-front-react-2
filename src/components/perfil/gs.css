@@ -1,0 +1,287 @@
+/*
+  Copia EXACTA del componente `perfil-de-personas/components/profile-page.tsx`.
+
+  Ese proyecto es Next + Tailwind v4 + shadcn (estilo `base-nova`). Aquí no hay Tailwind, así que
+  cada clase está traducida a su valor real. Las equivalencias que se usaron:
+
+    escala de espaciado  1 = 0.25rem   (px-4 = 1rem, py-3 = .75rem, gap-3 = .75rem…)
+    text-[10px|11px|19px]            literales
+    text-xs .75/1rem · text-sm .875/1.25rem · text-base 1/1.5rem
+    text-xl 1.25/1.75rem · text-2xl 1.5/2rem · text-4xl 2.25/2.5rem
+    tracking-tight -0.025em · leading-relaxed 1.625
+    breakpoints  sm = 640px · lg = 1024px      (NO son los 560/900 de base.css)
+    radios       del bloque @theme de globals.css, sobre --radius:.625rem
+                 rounded-md .5rem · rounded-lg .625rem · rounded-xl .875rem
+    sombras      las de Tailwind v4 (ojo: shadow-sm de v4 es el shadow de v3)
+
+  Los tokens de color son los de `globals.css` VERBATIM — la paleta shadcn `neutral`, que es gris
+  puro (oklch con croma 0). Se declaran con prefijo `--gs-` y acotados a `.gs` para que convivan con
+  los de `base.css` sin pisarlos: dentro de esta pantalla manda la paleta del componente, fuera
+  manda la de la aplicación.
+
+  Los colores de marca (#273b55, #17304d, #e8b32f, #f3c52f, #27384b, #087ee8, #066bc5, #167bc0) van
+  literales, exactamente como venían escritos a mano en el JSX del original.
+*/
+
+.gs{
+  /* globals.css :root, copiado tal cual */
+  --gs-background:oklch(1 0 0);
+  --gs-foreground:oklch(0.145 0 0);
+  --gs-card:oklch(1 0 0);
+  --gs-card-foreground:oklch(0.145 0 0);
+  --gs-primary:oklch(0.205 0 0);
+  --gs-secondary:oklch(0.97 0 0);
+  --gs-secondary-foreground:oklch(0.205 0 0);
+  --gs-muted:oklch(0.97 0 0);
+  --gs-muted-foreground:oklch(0.556 0 0);
+  --gs-border:oklch(0.922 0 0);
+  --gs-destructive:oklch(0.577 0.245 27.325);
+  --gs-radius:0.625rem;
+  --gs-radius-md:0.5rem;
+  --gs-radius-lg:0.625rem;
+  --gs-radius-xl:0.875rem;
+  --gs-shadow-sm:0 1px 3px 0 rgb(0 0 0/.1), 0 1px 2px -1px rgb(0 0 0/.1);
+  --gs-shadow-md:0 4px 6px -1px rgb(0 0 0/.1), 0 2px 4px -2px rgb(0 0 0/.1);
+  --gs-shadow-lg:0 10px 15px -3px rgb(0 0 0/.1), 0 4px 6px -4px rgb(0 0 0/.1);
+  --gs-shadow-xl:0 20px 25px -5px rgb(0 0 0/.1), 0 8px 10px -6px rgb(0 0 0/.1);
+
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--gs-foreground);
+  background:var(--gs-background);
+  /* main.mx-auto.min-h-screen.max-w-[1180px].bg-background.shadow-sm */
+  max-width:1180px;
+  margin:0 auto;
+  box-shadow:var(--gs-shadow-sm);
+  -webkit-font-smoothing:antialiased;
+}
+/* main.min-h-screen.bg-muted/40 — el gris de fondo sobre el que flota la hoja blanca. */
+.gs-fondo{background:color-mix(in oklab, var(--gs-muted) 40%, transparent);}
+.gs *{box-sizing:border-box;}
+.gs button{font-family:inherit; cursor:pointer; background:none; border:none; color:inherit;}
+
+/* `icon-button` venía del paquete `shadcn/tailwind.css`, que no está vendorizado en el repo.
+   Se reconstruye por su uso: botón redondo de icono en la barra superior. */
+.gs-icon-button{display:inline-flex; align-items:center; justify-content:center;
+  border-radius:9999px; padding:.5rem; transition:background-color .15s ease, color .15s ease;}
+.gs-icon-button:hover{background:var(--gs-muted);}
+
+/* ───────── header.flex.h-14.items-center.justify-between.border-b.px-4.lg:px-8 ───────── */
+.gs-header{display:flex; height:3.5rem; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--gs-border); padding-left:1rem; padding-right:1rem;}
+.gs-header-izq{display:flex; align-items:center; gap:1rem;}
+.gs-marca{display:flex; align-items:center; gap:.75rem;
+  border-right:1px solid var(--gs-border); padding-right:1.25rem;}
+/* .flex.h-8.w-12.items-center.justify-center.text-[8px].font-black.leading-[0.85].text-[#273b55] */
+.gs-logo{display:flex; height:2rem; width:3rem; align-items:center; justify-content:center;
+  font-size:8px; font-weight:900; line-height:.85; color:#273b55; text-align:center;}
+/* .hidden.text-sm.font-medium.text-muted-foreground.sm:inline */
+.gs-miperfil{display:none; font-size:.875rem; line-height:1.25rem; font-weight:500;
+  color:var(--gs-muted-foreground);}
+.gs-nav{display:flex; align-items:center; gap:1rem; color:var(--gs-muted-foreground);}
+/* .h-8.w-8.rounded-full.object-cover */
+.gs-nav-avatar{height:2rem; width:2rem; border-radius:9999px; object-fit:cover; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#27384b; color:#fff; font-size:.6875rem; font-weight:700;}
+
+/* ───────── section.border-b.px-4.py-3.lg:px-8 ───────── */
+.gs-titulo{border-bottom:1px solid var(--gs-border); padding:.75rem 1rem;}
+.gs-titulo-fila{display:flex; align-items:center; justify-content:space-between;}
+/* .text-xl.font-bold.tracking-tight */
+.gs-titulo h1{font-size:1.25rem; line-height:1.75rem; font-weight:700; letter-spacing:-.025em;}
+.gs-titulo .gs-icon-button{color:var(--gs-primary);}
+
+/* ───────── Hero ───────── */
+.gs-hero{position:relative;}
+/* .relative.h-36.overflow-hidden.sm:h-52.lg:h-64 */
+.gs-banner{position:relative; height:9rem; overflow:hidden;}
+.gs-banner img{height:100%; width:100%; object-fit:cover; display:block;}
+/* .absolute.inset-0.bg-[#17304d]/45 */
+.gs-banner-velo{position:absolute; inset:0; background:rgb(23 48 77 / .45);}
+/* .absolute.inset-0.flex.items-center.justify-center.gap-3.text-white */
+.gs-banner-txt{position:absolute; inset:0; display:flex; align-items:center;
+  justify-content:center; gap:.75rem; color:#fff;}
+/* .flex.h-12.w-12.items-center.justify-center.rounded-xl.bg-white.text-2xl.font-black.text-[#e8b32f].shadow-lg */
+.gs-estrella{display:flex; height:3rem; width:3rem; align-items:center; justify-content:center;
+  border-radius:var(--gs-radius-xl); background:#fff; font-size:1.5rem; line-height:2rem;
+  font-weight:900; color:#e8b32f; box-shadow:var(--gs-shadow-lg); flex-shrink:0;}
+/* .text-2xl.font-bold.tracking-tight.sm:text-4xl */
+.gs-talento{font-size:1.5rem; line-height:2rem; font-weight:700; letter-spacing:-.025em;}
+.gs-talento span{color:#f3c52f;}
+
+/* .relative.px-4.pb-5.lg:px-8 */
+.gs-hero-cuerpo{position:relative; padding:0 1rem 1.25rem;}
+/* .-mt-12.flex.items-end.justify-between.sm:-mt-16 */
+.gs-hero-fila{margin-top:-3rem; display:flex; align-items:flex-end; justify-content:space-between;}
+/* .h-24.w-24.rounded-full.border-4.border-background.object-cover.shadow-md.sm:h-32.sm:w-32 */
+.gs-avatar{height:6rem; width:6rem; border-radius:9999px; border:4px solid var(--gs-background);
+  object-fit:cover; box-shadow:var(--gs-shadow-md); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#27384b; color:#fff; font-size:1.75rem; font-weight:700;}
+/* .mb-1.flex.items-center.gap-2.rounded-md.bg-[#087ee8].px-3.py-2.text-xs.font-semibold.text-white.shadow-sm */
+.gs-acciones-btn{margin-bottom:.25rem; display:flex; align-items:center; gap:.5rem;
+  border-radius:var(--gs-radius-md); background:#087ee8; padding:.5rem .75rem;
+  font-size:.75rem; line-height:1rem; font-weight:600; color:#fff;
+  box-shadow:var(--gs-shadow-sm); transition:background-color .15s ease;}
+.gs-acciones-btn:hover{background:#066bc5;}
+
+.gs-identidad{margin-top:.75rem;}
+/* .max-w-xs.text-[19px].font-extrabold.uppercase.leading-[1.08].text-[#27384b].sm:max-w-none.sm:text-2xl */
+.gs-nombre{max-width:20rem; font-size:19px; font-weight:800; text-transform:uppercase;
+  line-height:1.08; color:#27384b;}
+/* .text-[10px].font-normal.normal-case.text-muted-foreground.sm:text-xs */
+.gs-nombre .gs-sello{white-space:nowrap;}
+.gs-nombre .gs-num{font-size:10px; font-weight:400; text-transform:none;
+  color:var(--gs-muted-foreground);}
+/* .ml-1.inline-flex.align-middle.text-[#167bc0] */
+.gs-nombre .gs-verificado{margin-left:.25rem; display:inline-flex; vertical-align:middle; color:#167bc0;}
+/* .mt-3.space-y-1.text-[10px].font-medium.uppercase.leading-relaxed.text-muted-foreground.sm:text-xs */
+.gs-cargo{margin-top:.75rem; font-size:10px; font-weight:500; text-transform:uppercase;
+  line-height:1.625; color:var(--gs-muted-foreground);}
+.gs-cargo p + p{margin-top:.25rem;}
+
+/* ───────── section.border-t.px-4.py-2.lg:px-8 ───────── */
+.gs-lista{border-top:1px solid var(--gs-border); padding:.5rem 1rem;}
+/* .group.flex.w-full.items-center.gap-3.border-b.border-border/70.py-4.text-left.text-sm.font-semibold.last:border-b-0.hover:text-primary.sm:py-5 */
+.gs-lista-item{display:flex; width:100%; align-items:center; gap:.75rem;
+  border-bottom:1px solid color-mix(in oklab, var(--gs-border) 70%, transparent);
+  padding:1rem 0; text-align:left; font-size:.875rem; line-height:1.25rem; font-weight:600;
+  transition:color .15s ease;}
+.gs-lista-item:last-child{border-bottom:0;}
+.gs-lista-item:hover{color:var(--gs-primary);}
+.gs-lista-item .gs-lista-icono{color:var(--gs-muted-foreground); flex-shrink:0;}
+.gs-lista-item:hover .gs-lista-icono{color:var(--gs-primary);}
+.gs-lista-item span{flex:1;}
+/* .text-muted-foreground.sm:hidden */
+.gs-lista-chevron{color:var(--gs-muted-foreground); flex-shrink:0;}
+
+/* ───────── section.mx-2.mb-6.rounded-xl.border.bg-card.px-3.py-3.shadow-sm.sm:mx-4.lg:mx-8 ───────── */
+.gs-card{margin:0 .5rem 1.5rem; border-radius:var(--gs-radius-xl);
+  border:1px solid var(--gs-border); background:var(--gs-card);
+  padding:.75rem; box-shadow:var(--gs-shadow-sm);}
+.gs-card-cab{display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem;}
+/* .text-xs.font-bold.text-card-foreground.sm:text-sm */
+.gs-card-cab h3{font-size:.75rem; line-height:1rem; font-weight:700; color:var(--gs-card-foreground);}
+/* .rounded-full.p-1.text-primary.hover:bg-muted */
+.gs-ayuda{border-radius:9999px; padding:.25rem; color:var(--gs-primary);
+  transition:background-color .15s ease; flex-shrink:0;
+  display:inline-flex; align-items:center; justify-content:center;}
+.gs-ayuda:hover{background:var(--gs-muted);}
+
+/* .flex.flex-col.items-center.pb-1.pt-7.text-center.sm:pt-10 */
+.gs-vacio{display:flex; flex-direction:column; align-items:center;
+  padding-top:1.75rem; padding-bottom:.25rem; text-align:center;}
+/* .h-16.w-24.rounded-md.object-cover.sm:h-20.sm:w-28 */
+.gs-vacio img{height:4rem; width:6rem; border-radius:var(--gs-radius-md); object-fit:cover;}
+/* .mt-7.text-sm.font-bold.sm:text-base */
+.gs-vacio h4{margin-top:1.75rem; font-size:.875rem; line-height:1.25rem; font-weight:700;
+  color:var(--gs-card-foreground);}
+/* .mt-1.text-[11px].text-muted-foreground.sm:text-xs */
+.gs-vacio p{margin-top:.25rem; font-size:11px; color:var(--gs-muted-foreground);}
+/* .mt-3.rounded-md.bg-secondary.px-3.py-2.text-[11px].font-medium.text-secondary-foreground.hover:bg-secondary/80 */
+.gs-btn-sec{margin-top:.75rem; border-radius:var(--gs-radius-md); background:var(--gs-secondary);
+  padding:.5rem .75rem; font-size:11px; font-weight:500; color:var(--gs-secondary-foreground);
+  transition:background-color .15s ease;}
+.gs-btn-sec:hover{background:color-mix(in oklab, var(--gs-secondary) 80%, transparent);}
+.gs-btn-sec:disabled{opacity:.5; cursor:not-allowed;}
+
+/* Botón primario, con la misma forma que "Todas las acciones". */
+.gs-btn-pri{border-radius:var(--gs-radius-md); background:#087ee8; padding:.5rem .75rem;
+  font-size:11px; font-weight:600; color:#fff; box-shadow:var(--gs-shadow-sm);
+  display:inline-flex; align-items:center; gap:.375rem; transition:background-color .15s ease;}
+.gs-btn-pri:hover{background:#066bc5;}
+.gs-btn-pri:disabled{opacity:.5; cursor:not-allowed;}
+
+/* ───────── div.fixed.inset-x-4.bottom-5.z-10.mx-auto.max-w-md.rounded-xl.bg-[#27384b] ───────── */
+.gs-snack{position:fixed; left:1rem; right:1rem; bottom:1.25rem; z-index:10; margin:0 auto;
+  display:flex; max-width:28rem; align-items:center; justify-content:space-between; gap:1rem;
+  border-radius:var(--gs-radius-xl); background:#27384b; padding:.75rem 1rem;
+  font-size:.875rem; line-height:1.25rem; color:#fff; box-shadow:var(--gs-shadow-xl);}
+
+/* ───────── Piezas propias, con la forma del componente ───────── */
+.gs-registro{padding:.75rem 0; border-bottom:1px solid color-mix(in oklab, var(--gs-border) 70%, transparent);}
+.gs-registro:last-of-type{border-bottom:0;}
+.gs-registro-fila{display:flex; align-items:flex-start; gap:.75rem;}
+.gs-registro-cuerpo{flex:1; min-width:0;}
+.gs-registro-tit{font-size:.875rem; line-height:1.25rem; font-weight:700; color:var(--gs-card-foreground);}
+.gs-registro-sub{margin-top:.125rem; font-size:.75rem; line-height:1rem; color:var(--gs-foreground);}
+.gs-registro-meta{margin-top:.25rem; font-size:11px; color:var(--gs-muted-foreground);}
+.gs-registro-txt{margin-top:.375rem; font-size:.75rem; line-height:1.125rem; color:var(--gs-muted-foreground);}
+.gs-quitar{border-radius:9999px; padding:.375rem; color:var(--gs-muted-foreground);
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:background-color .15s ease, color .15s ease;}
+.gs-quitar:hover{background:var(--gs-muted); color:var(--gs-destructive);}
+
+.gs-pie{display:flex; flex-wrap:wrap; gap:.5rem; padding-top:.75rem;}
+
+/* Formulario. Los inputs de `base.css` no aplican aquí: dentro de `.gs` manda esta hoja. */
+.gs-form{margin-top:.75rem; padding-top:.75rem;
+  border-top:1px solid color-mix(in oklab, var(--gs-border) 70%, transparent);}
+.gs-campos{display:grid; grid-template-columns:1fr; gap:.75rem;}
+.gs-campo.ancho{grid-column:1 / -1;}
+.gs-campo label{display:block; margin-bottom:.25rem; font-size:11px; font-weight:600;
+  color:var(--gs-card-foreground);}
+.gs .gs-campo input,
+.gs .gs-campo select,
+.gs .gs-campo textarea{width:100%; border:1px solid var(--gs-border);
+  border-radius:var(--gs-radius-md); background:var(--gs-background); color:var(--gs-foreground);
+  /* 16px: por debajo de eso iOS hace zoom al enfocar. */
+  padding:.5rem .625rem; font-size:16px; line-height:1.25rem; font-family:inherit; outline:none;}
+.gs .gs-campo textarea{min-height:4.5rem; resize:vertical;}
+.gs .gs-campo input:focus,
+.gs .gs-campo select:focus,
+.gs .gs-campo textarea:focus{border-color:#087ee8; box-shadow:0 0 0 3px rgb(8 126 232/.15);}
+.gs-consejo{margin-top:.25rem; font-size:11px; line-height:1.35; color:var(--gs-muted-foreground);}
+.gs-error{margin-top:.5rem; font-size:11px; color:var(--gs-destructive);}
+.gs-lista-campo{display:flex; flex-direction:column; gap:.5rem; margin-bottom:.5rem;}
+.gs-lista-campo-fila{display:flex; align-items:center; gap:.5rem;}
+
+/* Barra de "perfil completo": vive dentro de la hoja, con la forma de las demás tarjetas. */
+.gs-progreso-cab{display:flex; align-items:baseline; justify-content:space-between; gap:.75rem;
+  margin-bottom:.5rem;}
+.gs-progreso-cab b{font-size:.75rem; line-height:1rem; font-weight:700;}
+.gs-progreso-cab span{font-size:.75rem; font-weight:700; color:#087ee8;}
+.gs-progreso{height:.5rem; border-radius:9999px; background:var(--gs-muted); overflow:hidden;}
+.gs-progreso i{display:block; height:100%; border-radius:9999px; background:#087ee8;
+  transition:width .5s cubic-bezier(.2,.8,.3,1);}
+.gs-progreso.ok i{background:oklch(0.55 0.14 150);}
+.gs-faltantes{display:flex; flex-wrap:wrap; gap:.375rem; margin-top:.625rem;}
+.gs-faltante{border-radius:9999px; background:var(--gs-muted); padding:.1875rem .5rem;
+  font-size:10px; font-weight:500; color:var(--gs-muted-foreground);}
+
+.gs-diff-fila{display:flex; align-items:center; gap:.75rem; padding:.75rem 0;
+  border-bottom:1px solid color-mix(in oklab, var(--gs-border) 70%, transparent);}
+.gs-diff-fila:last-child{border-bottom:0;}
+.gs-diff-antes{margin-top:.125rem; font-size:.75rem; color:var(--gs-muted-foreground);}
+.gs-diff-despues{margin-top:.125rem; font-size:.75rem; font-weight:600; color:oklch(0.52 0.14 150);}
+
+/* ───────── sm: 640px ───────── */
+@media(min-width:640px){
+  .gs-miperfil{display:inline;}
+  .gs-banner{height:13rem;}
+  .gs-talento{font-size:2.25rem; line-height:2.5rem;}
+  .gs-hero-fila{margin-top:-4rem;}
+  .gs-avatar{height:8rem; width:8rem; font-size:2.25rem;}
+  .gs-acciones-btn{padding-left:1rem; padding-right:1rem; font-size:.875rem; line-height:1.25rem;}
+  .gs-nombre{max-width:none; font-size:1.5rem; line-height:2rem;}
+  .gs-nombre .gs-num{font-size:.75rem;}
+  .gs-cargo{font-size:.75rem;}
+  .gs-lista-item{padding:1.25rem 0;}
+  .gs-lista-chevron{display:none;}
+  .gs-card{margin-left:1rem; margin-right:1rem;}
+  .gs-card-cab h3{font-size:.875rem; line-height:1.25rem;}
+  .gs-vacio{padding-top:2.5rem;}
+  .gs-vacio img{height:5rem; width:7rem;}
+  .gs-vacio h4{font-size:1rem; line-height:1.5rem;}
+  .gs-vacio p{font-size:.75rem;}
+  .gs-campos{grid-template-columns:1fr 1fr;}
+}
+
+/* ───────── lg: 1024px ───────── */
+@media(min-width:1024px){
+  .gs-header{padding-left:2rem; padding-right:2rem;}
+  .gs-titulo{padding-left:2rem; padding-right:2rem;}
+  .gs-banner{height:16rem;}
+  .gs-hero-cuerpo{padding-left:2rem; padding-right:2rem;}
+  .gs-lista{padding-left:2rem; padding-right:2rem;}
+  .gs-card{margin-left:2rem; margin-right:2rem;}
+}

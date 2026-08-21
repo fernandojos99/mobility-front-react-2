@@ -1,34 +1,82 @@
 /**
- * Pantalla `/yo/gap` — Perfil de talento.
+ * Pantalla `/yo/gap` — **Mi puesto**: qué tan bien cubres el puesto que ocupas HOY.
  *
- * Las secciones son las del dashboard `front/employee/employee-performance-dashboard/` (Desempeño,
- * IPN, Psicometrías, Felicidad, Valores, Aprendizaje, Coaching), **re-vestidas con el diseño de
- * `/yo`**: su paleta —marino y carmesí— no se porta, ver `components/talento/talento.css`.
+ * Cuatro apartados y nada más: la caja de avance, tu desempeño, tus capacidades y lo que sugiere el
+ * sistema. Las tarjetas de IPN, Felicidad, Valores, Aprendizaje y Coaching **siguen existiendo y
+ * siguen compilando** (`components/talento/TarjetasTalento.tsx`); lo que pasa es que esta pantalla
+ * dejó de montarlas. El backend sigue sirviendo esos datos, así que devolverlas es una línea.
  *
- * Del dashboard se descartan su barra superior y su `profile-hero`; arriba va el hero de perfil de
- * `/yo`, que es el mismo componente (`HeroPerfilGS`), no una copia.
+ * Los valores no desaparecen: viven dentro de la tabla de desempeño, detrás de la columna
+ * "Valores", que es de donde salen.
  *
- * La caja de recomendaciones sigue siendo índigo, que es la convención del proyecto para lo que
- * genera el sistema.
+ * La piel es la de `/yo` (`gs.css` + `talento.css`) y la caja oscura es la misma de
+ * `/yo/aspiracion`, por eso entra `roadmap.css` y el envoltorio `.rm`.
  */
 import { useEffect, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Sparkles, Target } from "lucide-react";
 import { colaboradorService } from "../services/colaboradorService";
 import { useData } from "../store/DataProvider";
 import { useYo } from "../hooks/useYo";
+import { CajaVacia } from "../components/common/CajaVacia";
 import { HeroPerfilGS } from "../components/perfil/HeroPerfilGS";
 import { RecomendacionIA } from "../components/talento/RecomendacionIA";
-import {
-  TarjetaAprendizaje, TarjetaCoaching, TarjetaDesempeno, TarjetaFelicidad,
-  TarjetaIpn, TarjetaPsicometrias, TarjetaValores,
-} from "../components/talento/TarjetasTalento";
+import { TarjetaCapacidades, TarjetaDesempeno } from "../components/talento/TarjetasTalento";
 import "../components/perfil/gs.css";
+import "../components/roadmap/roadmap.css";
 import "../components/talento/talento.css";
 import type { GapActual } from "../types/domain";
 
-/** Ilustración del estado vacío, la misma que usan las tarjetas de `/yo`. */
-const IMG_VACIO =
-  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-qZhJ4xiN289ReGpMhdVFZpEEq8U6Gv.png";
+/**
+ * Cuánto cubres del puesto que ya ocupas.
+ *
+ * Es la caja de `HeroBrujula`, pero mirando hacia dentro en vez de hacia el siguiente puesto: allí
+ * el número es la preparación para el destino y aquí es el `cumplimiento` del descriptivo actual —
+ * el mismo que enseña la tarjeta "Puesto actual" de Aspiraciones, para que no digan cosas distintas.
+ */
+function AvancePuesto({ gap }: { gap: GapActual }) {
+  const pendientes = gap.bloques.filter((b) => b.estado !== "ok").length;
+  const anos = Math.floor(gap.antiguedadMeses / 12);
+  const meses = gap.antiguedadMeses % 12;
+  const antiguedad = anos > 0
+    ? `${anos} ${anos === 1 ? "año" : "años"}${meses ? ` y ${meses} m` : ""}`
+    : `${meses} ${meses === 1 ? "mes" : "meses"}`;
+
+  return (
+    <section className="rm-hero" aria-label="Qué tanto cubres tu puesto actual">
+      <div className="rm-hero-top">
+        <div>
+          <p className="rm-kicker">Tu puesto de hoy · {antiguedad} en él</p>
+          <h2>{gap.puestoTitulo}</h2>
+        </div>
+        <div className="rm-hero-icono"><Target size={24} /></div>
+      </div>
+
+      <div className="rm-hero-prog">
+        <div>
+          <strong>{gap.cumplimiento}%</strong>
+          <span>del descriptivo</span>
+        </div>
+        <div className="rm-barra-caja">
+          <div className="rm-barra"><span style={{ width: `${gap.cumplimiento}%` }} /></div>
+          <div className="rm-barra-rot"><span>Hoy</span><span>Puesto cubierto</span></div>
+        </div>
+      </div>
+
+      <p className="rm-hero-nota">
+        <Sparkles size={15} style={{ flexShrink: 0 }} />
+        {pendientes === 0 ? (
+          <span>Cubres tu puesto por completo. <strong>Es el momento de mirar el siguiente.</strong></span>
+        ) : (
+          <span>
+            {pendientes === 1 ? "Queda" : "Quedan"}{" "}
+            <strong>{pendientes} {pendientes === 1 ? "bloque" : "bloques"}</strong> por reforzar en
+            tu puesto actual.
+          </span>
+        )}
+      </p>
+    </section>
+  );
+}
 
 export function GapActualPage() {
   const yo = useYo();
@@ -49,31 +97,29 @@ export function GapActualPage() {
   const t = yo.talento;
   const escala = catalogos?.escalaDesempeno ?? [];
   const niveles = catalogos?.nivelesValor ?? [];
+  const capacidades = catalogos?.nivelesCapacidad ?? [];
 
   return (
     <div className="gs-fondo">
       <div className="gs">
         <HeroPerfilGS yo={yo} puesto={puestoDe(yo.puestoActualId)} />
 
+        <div className="rm">
+          <div style={{ padding: "0 .5rem" }}>
+            {gap && <AvancePuesto gap={gap} />}
+          </div>
+        </div>
+
         <div style={{ padding: "1rem .5rem 0" }}>
           {t ? (
-            <div className="tl-grid">
-              <div className="tl-col">
-                <TarjetaDesempeno t={t} escala={escala} />
-                <TarjetaIpn ipn={t.ipn} />
-                <TarjetaPsicometrias ps={t.psicometrias} />
-              </div>
-              <div className="tl-col">
-                <TarjetaFelicidad ipn={t.ipn} />
-                <TarjetaValores valores={t.valores} niveles={niveles} />
-                <TarjetaAprendizaje lineas={t.aprendizaje} />
-                <TarjetaCoaching coaching={t.coaching} mentoring={t.mentoring} />
-              </div>
+            <div className="tl-col">
+              <TarjetaDesempeno t={t} escala={escala} valores={t.valores} niveles={niveles} />
+              <TarjetaCapacidades ps={t.psicometrias} niveles={capacidades} />
             </div>
           ) : (
             <section className="gs-card" style={{ margin: 0 }}>
               <div className="gs-vacio">
-                <img src={IMG_VACIO} alt="Ilustración de una caja vacía" />
+                <CajaVacia />
                 <h4>Aún no hay datos</h4>
                 <p>Todavía no tienes expediente de talento. Se llena con tu evaluación anual.</p>
               </div>

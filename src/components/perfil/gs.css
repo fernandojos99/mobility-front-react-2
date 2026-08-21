@@ -173,8 +173,27 @@
 /* .flex.flex-col.items-center.pb-1.pt-7.text-center.sm:pt-10 */
 .gs-vacio{display:flex; flex-direction:column; align-items:center;
   padding-top:1.75rem; padding-bottom:.25rem; text-align:center;}
-/* .h-16.w-24.rounded-md.object-cover.sm:h-20.sm:w-28 */
-.gs-vacio img{height:4rem; width:6rem; border-radius:var(--gs-radius-md); object-fit:cover;}
+/* Ocupa el hueco del `img` del original (.h-16.w-24 → .sm:h-20.sm:w-28). */
+.gs-caja{height:4rem; width:6rem; overflow:visible;}
+.gs-caja-cuerpo{fill:var(--gs-muted); stroke:#B9C2CE; stroke-width:2; stroke-linejoin:round;}
+.gs-caja-boca{fill:#DDE3EA; stroke:#B9C2CE; stroke-width:2; stroke-linejoin:round;}
+.gs-caja-solapa{fill:none; stroke:#B9C2CE; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+.gs-caja-linea{stroke:#C8D0DA; stroke-width:2; stroke-linecap:round;}
+.gs-caja-piezas rect{fill:#087ee8; opacity:0; transform-origin:center;
+  animation:gs-caja-flota 2.7s ease-in-out infinite;}
+/*
+ * Sube y se apaga. Arranca DENTRO de la boca (y=+14, que es donde está el rombo) para que se lea
+ * como que sale de la caja y no como tres cuadros sueltos flotando encima.
+ */
+@keyframes gs-caja-flota{
+  0%{opacity:0; transform:translateY(14px) scale(.6);}
+  30%{opacity:.9; transform:translateY(4px) scale(1);}
+  70%{opacity:.55; transform:translateY(-6px) scale(1);}
+  100%{opacity:0; transform:translateY(-14px) scale(.85);}
+}
+@media(prefers-reduced-motion:reduce){
+  .gs-caja-piezas rect{animation:none; opacity:.5; transform:none;}
+}
 /* .mt-7.text-sm.font-bold.sm:text-base */
 .gs-vacio h4{margin-top:1.75rem; font-size:.875rem; line-height:1.25rem; font-weight:700;
   color:var(--gs-card-foreground);}
@@ -273,7 +292,7 @@
   .gs-card{margin-left:1rem; margin-right:1rem;}
   .gs-card-cab h3{font-size:.875rem; line-height:1.25rem;}
   .gs-vacio{padding-top:2.5rem;}
-  .gs-vacio img{height:5rem; width:7rem;}
+  .gs-caja{height:5rem; width:7rem;}
   .gs-vacio h4{font-size:1rem; line-height:1.5rem;}
   .gs-vacio p{font-size:.75rem;}
   .gs-campos{grid-template-columns:1fr 1fr;}

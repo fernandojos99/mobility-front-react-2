@@ -42,7 +42,8 @@ export interface HistorialPuesto {
 export interface Evaluacion { anio: string; desempeno: string; objetivos: string; comportamientos: string; }
 /** `valor` es un porcentaje 0–100. */
 export interface PuntoIpn { periodo: string; valor: number; }
-export interface Psicometria { instrumento: string; rasgos: string[]; }
+export interface RasgoMedido { nombre: string; nivel: string; }
+export interface Psicometria { instrumento: string; rasgos: RasgoMedido[]; }
 export interface ValorInstitucional { nombre: string; nivel: string; }
 export interface LineaAprendizaje { categoria: string; finalizados: number; pendientes: number; }
 
@@ -162,9 +163,6 @@ export interface Colaborador {
   cursos: CursoItem[];
   historialPuestos: HistorialPuesto[];
   proyectosIds: string[];
-  /** Guardados para volver luego. `proyectosFavoritos` NO es `proyectosIds`: eso es participar. */
-  vacantesFavoritas: string[];
-  proyectosFavoritos: string[];
   logros: Logro[];
   intereses: Interes[];
   /** Opcional: no todos los perfiles tienen expediente. Paulina (5) no lo tiene, a propósito. */
@@ -330,6 +328,7 @@ export interface Catalogos {
   tiposProyecto: string[];
   escalaDesempeno: string[];
   nivelesValor: string[];
+  nivelesCapacidad: string[];
   valoresInstitucionales: string[];
   categoriasAprendizaje: string[];
   instrumentosPsicometricos: string[];

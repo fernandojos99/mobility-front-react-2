@@ -12,6 +12,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Loader2, Plus, X } from "lucide-react";
 import { BotonAyuda } from "../common/BotonAyuda";
+import { CajaVacia } from "../common/CajaVacia";
 import { esMxAIso, isoAEsMx } from "../../utils/format";
 
 export type TipoCampo = "texto" | "textarea" | "select" | "fecha" | "lista";
@@ -49,10 +50,6 @@ interface Props {
   ayuda: string[];
   onGuardar: (registros: Registro[]) => Promise<void>;
 }
-
-/** Ilustración del estado vacío, la misma del componente de referencia. */
-const IMG_VACIO =
-  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-qZhJ4xiN289ReGpMhdVFZpEEq8U6Gv.png";
 
 /** Cuántos registros se ven antes de pulsar "Ver todo". */
 const VISIBLES = 2;
@@ -123,7 +120,7 @@ export function TarjetaPerfil({ id, titulo, campos, registros, fila, vacio, ayud
 
       {sinRegistros && !abierto && (
         <div className="gs-vacio">
-          <img src={IMG_VACIO} alt="Ilustración de una caja vacía" />
+          <CajaVacia />
           <h4>Aún no hay datos</h4>
           <p>{vacio ?? "¿Desea agregar un registro ahora?"}</p>
           <button type="button" className="gs-btn-sec" onClick={() => setAbierto(true)}>

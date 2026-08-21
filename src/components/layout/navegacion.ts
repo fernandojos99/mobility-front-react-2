@@ -17,7 +17,7 @@ export interface ItemNav {
 
 export const NAV_COLABORADOR: ItemNav[] = [
   { to: "/yo", icon: UserRound, label: "Mi información", corto: "Mi perfil" },
-  { to: "/yo/gap", icon: Target, label: "Mi desarrollo", corto: "Desarrollo" },
+  { to: "/yo/gap", icon: Target, label: "Mi puesto", corto: "Mi puesto" },
   { to: "/yo/aspiracion", icon: Flag, label: "Mis aspiraciones", corto: "Aspiraciones" },
   { to: "/oportunidades", icon: Briefcase, label: "Oportunidades", corto: "Oportunidades" },
 ];

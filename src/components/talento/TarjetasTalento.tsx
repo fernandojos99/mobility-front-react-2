@@ -8,8 +8,8 @@
  * Van todas en un archivo porque son piezas de presentación cortas de la MISMA pantalla: repartirlas
  * en siete ficheros de veinte líneas costaría más de lo que aclara.
  */
-import type { ReactNode } from "react";
-import { Activity, Award, BookOpen, HeartPulse, Lightbulb, Target, TrendingUp } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Activity, Award, BookOpen, ChevronDown, HeartPulse, Lightbulb, Target, TrendingUp } from "lucide-react";
 import { BotonAyuda } from "../common/BotonAyuda";
 import { GraficaIpn } from "./GraficaIpn";
 import type { LineaAprendizaje, Psicometria, PuntoIpn, Talento, ValorInstitucional } from "../../types/domain";
@@ -39,19 +39,53 @@ function Tarjeta({ icono, titulo, ayuda, extra, children, className = "" }: {
 /**
  * Tono de una píldora de nivel. Se decide por POSICIÓN en la escala, no por el texto: así, si mañana
  * se añade un escalón al catálogo, los colores siguen cuadrando.
+ *
+ * `sinFallo` existe porque no toda escala empieza en algo malo. La de capacidades va de
+ * "Satisfactorio" a "Experto": su escalón más bajo ya es cumplir, y pintarlo de rojo diría a la cara
+ * lo contrario de lo que dice la ayuda de la tarjeta. Ahí el rojo simplemente no se usa.
  */
-function tono(valor: string, escala: string[]): string {
+function tono(valor: string, escala: string[], sinFallo = false): string {
   const i = escala.indexOf(valor);
   if (i < 0) return "medio";
   const t = i / Math.max(1, escala.length - 1);
-  return t >= 0.6 ? "alto" : t >= 0.3 ? "medio" : "bajo";
+  if (t >= 0.6) return "alto";
+  return sinFallo || t >= 0.3 ? "medio" : "bajo";
 }
 
-export function TarjetaDesempeno({ t, escala }: { t: Talento; escala: string[] }) {
-  // La marca del termómetro va en la evaluación más reciente.
-  const ultima = t.evaluaciones[t.evaluaciones.length - 1];
-  const idx = ultima ? escala.indexOf(ultima.desempeno) : -1;
-  const pct = idx < 0 ? 50 : (idx / Math.max(1, escala.length - 1)) * 100;
+/**
+ * Filas «algo → su nivel». La usan los valores institucionales y las capacidades: son el mismo
+ * objeto —un nombre y un escalón de una escala— y merecen leerse igual.
+ */
+function ListaNiveles({ filas, escala, sinFallo = false }: {
+  filas: { nombre: string; nivel: string }[];
+  escala: string[];
+  /** Ver `tono`: para escalas cuyo escalón más bajo ya es aprobar. */
+  sinFallo?: boolean;
+}) {
+  return (
+    <div className="tl-valores">
+      {filas.map((f) => (
+        <div key={f.nombre}>
+          <span>{f.nombre}</span>
+          <b className={`tl-nivel ${tono(f.nivel, escala, sinFallo)}`}>{f.nivel}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function TarjetaDesempeno({ t, escala, valores, niveles }: {
+  t: Talento;
+  escala: string[];
+  /** Los valores institucionales: son el desglose que abre la columna "Valores". */
+  valores: ValorInstitucional[];
+  niveles: string[];
+}) {
+  /*
+   * Qué año tiene el desglose de valores abierto. Se guarda el año y no un booleano porque la tabla
+   * lleva una fila por evaluación: abrir 2026 tiene que cerrar 2025, no apilarse con él.
+   */
+  const [abierto, setAbierto] = useState<string | null>(null);
 
   return (
     <Tarjeta icono={<TrendingUp size={16} strokeWidth={2.5} />} titulo="Desempeño" ayuda={[
@@ -59,26 +93,42 @@ export function TarjetaDesempeno({ t, escala }: { t: Talento; escala: string[] }
         "Lo importante: el desempeño NO bloquea tu camino a otro puesto. Se avanza por habilidades, " +
         "no por la calificación — es deliberado, para que nadie pueda frenar a alguien de su equipo " +
         "evaluándolo bajo.",
-        "El triángulo marca dónde caes en la escala según tu evaluación más reciente.",
+        "Pulsa la columna «Valores» de cualquier año para ver cómo tienes cada valor institucional.",
       ]}>
       <div className="tl-tabla">
         <div className="tl-tabla-cab">
-          <span>Año</span><span>Desempeño</span><span>Objetivos</span><span>Comportamientos</span>
+          <span>Año</span><span>Desempeño</span><span>Objetivos</span><span>Valores</span>
         </div>
-        {t.evaluaciones.map((e) => (
-          <div className="tl-tabla-fila" key={e.anio}>
-            <strong>{e.anio}</strong>
-            <span className={`tl-nivel ${tono(e.desempeno, escala)}`}>{e.desempeno}</span>
-            <span className={`tl-nivel ${tono(e.objetivos, escala)}`}>{e.objetivos}</span>
-            <span className={`tl-nivel ${tono(e.comportamientos, escala)}`}>{e.comportamientos}</span>
-          </div>
-        ))}
-      </div>
-      <div className="tl-escala" aria-label="Escala de evaluación de desempeño">
-        <div className="tl-barra"><span className="tl-marca" style={{ left: `${pct}%` }} /></div>
-        <div className="tl-escala-rot">
-          {escala.map((e) => <span key={e}>{e}</span>)}
-        </div>
+        {t.evaluaciones.map((e) => {
+          const open = abierto === e.anio;
+          return (
+            <div key={e.anio}>
+              <div className="tl-tabla-fila">
+                <strong>{e.anio}</strong>
+                <span className={`tl-nivel ${tono(e.desempeno, escala)}`}>{e.desempeno}</span>
+                <span className={`tl-nivel ${tono(e.objetivos, escala)}`}>{e.objetivos}</span>
+                {/* La celda es el disparador: es lo que ya se estaba mirando, así que no hace
+                    falta un botón aparte que repita la palabra "Valores". */}
+                <button
+                  type="button"
+                  className={`tl-nivel tl-nivel-btn ${tono(e.comportamientos, escala)}`}
+                  onClick={() => setAbierto(open ? null : e.anio)}
+                  aria-expanded={open}
+                  title={open ? "Ocultar el desglose de valores" : "Ver el desglose de valores"}
+                >
+                  {e.comportamientos}
+                  <ChevronDown size={11} className={open ? "girado" : ""} />
+                </button>
+              </div>
+              {open && (
+                <div className="tl-desglose">
+                  <p>Cómo tienes cada valor institucional</p>
+                  <ListaNiveles filas={valores} escala={niveles} />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </Tarjeta>
   );
@@ -97,21 +147,31 @@ export function TarjetaIpn({ ipn }: { ipn: PuntoIpn[] }) {
   );
 }
 
-export function TarjetaPsicometrias({ ps }: { ps: Psicometria[] }) {
+/** El instrumento del que salen las capacidades que se enseñan. Los otros dos siguen llegando del
+    backend, pero no se pintan: ver `MisCapacidades`. */
+const INSTRUMENTO_CAPACIDADES = "Mis Talentos";
+
+/**
+ * "Mis capacidades" — antes "Psicometrías".
+ *
+ * De los tres instrumentos sólo se enseña **Mis Talentos**, uno por fila con su nivel. Human Side y
+ * PDA se ocultan, no se borran: el backend los sigue sirviendo y volver a enseñarlos es cambiar esta
+ * constante. Se apilan igual que los valores porque son lo mismo —un rasgo y su escalón—, y verlos
+ * con la misma forma ahorra tener que aprender dos lecturas.
+ */
+export function TarjetaCapacidades({ ps, niveles }: { ps: Psicometria[]; niveles: string[] }) {
+  const mias = ps.find((p) => p.instrumento === INSTRUMENTO_CAPACIDADES);
+  if (!mias || mias.rasgos.length === 0) return null;
+
   return (
-    <Tarjeta icono={<Lightbulb size={16} strokeWidth={2.5} />} titulo="Psicometrías" ayuda={[
-        "Los rasgos que salieron de los instrumentos que has contestado. No son una nota ni hay " +
+    <Tarjeta icono={<Lightbulb size={16} strokeWidth={2.5} />} titulo="Mis capacidades" ayuda={[
+        "Las capacidades que salieron de tu instrumento «Mis Talentos». No son una nota ni hay " +
         "resultados buenos o malos: describen cómo trabajas, no cuánto vales.",
+        "El nivel dice qué tan consolidada la tienes: «Satisfactorio» es que la cumples, " +
+        "«Avanzado» que la sostienes en situaciones difíciles y «Experto» que además enseñas a otros.",
         "Sirven para proponerte proyectos y equipos donde esa forma de trabajar rinde más.",
       ]}>
-      <div className="tl-psico">
-        {ps.map((p) => (
-          <div key={p.instrumento}>
-            <b>{p.instrumento}</b>
-            <span>{p.rasgos.join(" · ")}</span>
-          </div>
-        ))}
-      </div>
+      <ListaNiveles filas={mias.rasgos} escala={niveles} sinFallo />
     </Tarjeta>
   );
 }
@@ -150,14 +210,7 @@ export function TarjetaValores({ valores, niveles }: { valores: ValorInstitucion
         "«Satisfactorio» no es un problema — significa que lo cumples. «Avanzado» es que además lo " +
         "sostienes en situaciones difíciles y sirves de ejemplo.",
       ]}>
-      <div className="tl-valores">
-        {valores.map((v) => (
-          <div key={v.nombre}>
-            <span>{v.nombre}</span>
-            <b className={`tl-nivel ${tono(v.nivel, niveles)}`}>{v.nivel}</b>
-          </div>
-        ))}
-      </div>
+      <ListaNiveles filas={valores} escala={niveles} />
     </Tarjeta>
   );
 }

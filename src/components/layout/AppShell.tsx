@@ -12,7 +12,7 @@ import { useData } from "../../store/DataProvider";
 
 const TITULOS: Record<string, [string, string]> = {
   "/yo": ["Mi perfil", "Tu información profesional dentro y fuera del grupo"],
-  "/yo/gap": ["Mi desarrollo", "Qué tan bien cubres el puesto que ocupas hoy"],
+  "/yo/gap": ["Mi puesto", "Qué tan bien cubres el puesto que ocupas hoy"],
   "/yo/aspiracion": ["Mis aspiraciones", "A dónde quieres llegar y qué te separa de ahí"],
   "/oportunidades": ["Oportunidades", "Vacantes y proyectos que puedes tomar"],
   "/generalista": ["Reglas de movilidad", "Lo que decide quién se puede mover y cuándo"],

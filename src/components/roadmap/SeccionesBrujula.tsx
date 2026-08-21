@@ -16,62 +16,106 @@ import {
 import type { Camino, Hito } from "../../types/domain";
 
 /**
- * Una ÚNICA barra azul que va de donde estás a donde pide el puesto.
+ * Barra de rol: el relleno azul es cómo le va de verdad contra ese puesto.
  *
- * Antes eran dos barras separadas —"Hoy" y "Meta"— y había que compararlas de un vistazo para
- * deducir la brecha. Ahora es una sola: el relleno azul es lo que ya tienes, lo gris es lo que
- * falta, y la flecha marca justo la frontera entre las dos.
- *
- * El porcentaje y la flecha salen del MISMO cálculo (`pct`), así que no pueden discrepar: si el
- * rótulo dice 20 %, la flecha está en el 20 % del ancho. `meta` puede ser menor que 5 —el hito de
- * desempeño pide 3—, por eso el avance se mide contra la meta y no contra un 5 fijo.
+ * La marca del nivel esperado sólo tiene sentido en "Puesto actual", donde existe una expectativa
+ * (3 de 5). En "Puesto deseado" el objetivo es cubrirlo entero, así que una marca en el 60 %
+ * insinuaría que con eso basta — por eso allí se apaga y el pie manda a las brechas.
  */
-/**
- * Barra de rol: la flecha se clava en el nivel que se ESPERA (3 de 5) y no se mueve; lo que varía
- * es el relleno azul, que es cómo le va de verdad.
- *
- * Así las dos tarjetas se comparan de un vistazo contra la misma referencia: en "Puesto actual" el
- * relleno es lo que cubre del puesto que ya ocupa, y en "Puesto deseado", su compatibilidad con el
- * objetivo. Si la flecha se moviera con cada tarjeta no habría nada que comparar.
- */
-export function BarraDesempeno({ pct }: { pct: number }) {
+export function BarraDesempeno({ pct, marca = true, nota }: {
+  pct: number;
+  marca?: boolean;
+  nota?: string;
+}) {
   const relleno = Math.round(Math.min(100, Math.max(0, pct)));
   const ESPERADO = 60; // 3 de 5
   return (
-    <div className="rm-nivel" aria-label={`${relleno} % — se espera ${ESPERADO} %`}>
+    <div className="rm-nivel" aria-label={marca ? `${relleno} % — se espera ${ESPERADO} %` : `${relleno} %`}>
       <div className="rm-nivel-barra">
         <span className="rm-nivel-relleno" style={{ width: `${relleno}%` }} />
-        <span className="rm-nivel-marca fija" style={{ left: `${ESPERADO}%` }} />
+        {marca && <span className="rm-nivel-marca fija" style={{ left: `${ESPERADO}%` }} />}
       </div>
       <span className="rm-nivel-falta">
-        La marca es el nivel que se espera (3 de 5).
+        {nota ?? "La marca es el nivel que se espera (3 de 5)."}
       </span>
     </div>
   );
 }
 
+/** Las casillas de la barra. Cinco es la escala de niveles de toda la aplicación. */
+const CASILLAS = 5;
+
+/**
+ * Una barra de cinco casillas: el relleno azul llega hasta el nivel que ya tienes y el triángulo
+ * marca el que se espera de ti.
+ *
+ * **El relleno cae siempre en una línea divisoria**, nunca a media casilla: el ancho es
+ * `nivel / 5`, no un porcentaje libre. Antes se dibujaba `actual / meta`, y eso hacía que un 2 de 3
+ * y un 4 de 6 se vieran idénticos aunque no son lo mismo — ahora la escala es la misma para todas
+ * las brechas y dos barras se comparan de un vistazo.
+ *
+ * El nivel esperado no es la meta a secas: cuando faltan cuatro niveles, esperarlos todos de golpe
+ * no es una expectativa, es un deseo. Se pide **como mucho dos por delante**, que es lo que cabe en
+ * un ciclo, y la meta completa sigue escrita con todas sus letras en el pie.
+ */
 export function NivelBarra({ actual, meta, compacta = false }: {
   actual: number;
   meta: number;
   /** Sin rótulos: la usan las tarjetas de rol, que ya enseñan el número encima. */
   compacta?: boolean;
 }) {
-  const tope = Math.max(1, meta);
-  const pct = Math.round((Math.min(actual, tope) / tope) * 100);
+  const nivel = Math.max(0, Math.min(CASILLAS, Math.round(actual)));
+  const tope = Math.max(0, Math.min(CASILLAS, Math.round(meta)));
+  const esperado = nivel >= tope ? tope : Math.min(tope, nivel + 2);
+  const cumplido = nivel >= esperado;
   const faltan = Math.round((meta - actual) * 10) / 10;
 
+  const pct = (nivel / CASILLAS) * 100;
+  const pctEsp = (esperado / CASILLAS) * 100;
+
+  /*
+   * Centrar sobre el triángulo funciona en todas partes menos en los extremos: en el nivel 0 y en el
+   * 5, un `translateX(-50%)` deja la mitad fuera de la barra —y la barra recorta—, así que ahí se
+   * ancla al borde. Vale para el rótulo y para el propio triángulo.
+   */
+  const enBorde = pctEsp <= 0 ? { left: 0 } : pctEsp >= 100 ? { right: 0 } : null;
+  const posicion = enBorde ?? { left: `${pctEsp}%`, transform: "translateX(-50%)" };
+
   return (
-    <div className="rm-nivel" aria-label={`Nivel ${actual} de ${meta}, ${pct} %`}>
+    <div className="rm-nivel" aria-label={`Nivel ${nivel} de ${CASILLAS}; se espera ${esperado}`}>
       {!compacta && (
         <div className="rm-nivel-cab">
-          <span>Nivel <b>{actual}</b> de <b>{meta}</b></span>
-          <span className="rm-nivel-pct">{pct} %</span>
+          <span>Nivel actual: <b>{nivel}</b></span>
+          <span className={"rm-estado " + (cumplido ? "ok" : "curso")}>
+            {cumplido ? "Cumplido" : "En desarrollo"}
+          </span>
         </div>
       )}
+
+      <div className="rm-nivel-rotulo">
+        <span style={posicion}>nivel esperado: {esperado}</span>
+      </div>
+
       <div className="rm-nivel-barra">
         <span className="rm-nivel-relleno" style={{ width: `${pct}%` }} />
-        <span className="rm-nivel-marca" style={{ left: `${pct}%` }} />
+        {/* Las cuatro divisiones interiores. Las que quedan DENTRO del relleno se pintan claras: un
+            tinte oscuro sobre el azul no se distingue, y sin ellas no se puede contar en qué casilla
+            cae la barra, que es justo lo que esta barra existe para decir. */}
+        {Array.from({ length: CASILLAS - 1 }, (_, i) => (
+          <span
+            key={i}
+            className={"rm-nivel-div" + (i + 1 < nivel ? " sobre" : "")}
+            style={{ left: `${((i + 1) / CASILLAS) * 100}%` }}
+          />
+        ))}
+        {/* Cuando el esperado ya está alcanzado, el triángulo cae sobre el relleno: navy sobre
+            azul no se ve, así que ahí se pinta blanco. */}
+        <span
+          className={"rm-nivel-marca" + (esperado <= nivel && nivel > 0 ? " sobre" : "")}
+          style={posicion}
+        />
       </div>
+
       {!compacta && faltan > 0 && (
         <span className="rm-nivel-falta">
           Te {faltan === 1 ? "falta" : "faltan"} {faltan} {faltan === 1 ? "nivel" : "niveles"} para
@@ -187,7 +231,11 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
             <span>Cómo vas para ese puesto</span>
             <strong>{camino.compatibilidad} <small>%</small></strong>
           </div>
-          <BarraDesempeno pct={camino.compatibilidad} />
+          <BarraDesempeno
+            pct={camino.compatibilidad}
+            marca={false}
+            nota="Abajo, en tus brechas, está el desglose de lo que pide."
+          />
         </div>
       </div>
 
@@ -206,7 +254,13 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
 
 /* ────────────────────────── Brechas ────────────────────────── */
 
-type Filtro = "todas" | "alta" | "media";
+type Filtro = "todas" | "pendientes" | "cumplidas";
+
+const FILTROS: Record<Filtro, string> = {
+  todas: "Todas",
+  pendientes: "Pendientes",
+  cumplidas: "Cumplidas",
+};
 
 export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
   const [filtro, setFiltro] = useState<Filtro>("todas");
@@ -215,16 +269,21 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
   );
 
   /*
-   * Una brecha es lo que FALTA. Listar aquí también los hitos cumplidos llenaba la sección de filas
-   * "5/5 → 5/5" bajo un título que dice "lo que necesitas fortalecer", y además descuadraba la
-   * cuenta con el hero ("te faltan 4 hitos" contra "13 hitos"). El camino completo, cumplidos
-   * incluidos, está justo debajo en "Mi ruta" y en el mapa.
+   * Las cumplidas se quedan en la lista, pero DETRÁS. Ocultarlas dejaba la barra sin un solo
+   * "Cumplido" en verde —el estado nunca llegaba a verse— y borraba el trabajo ya hecho de la única
+   * pantalla donde se mide. Ordenadas así, lo que falta sigue abriendo la sección.
    */
-  const pendientes = useMemo(() => hitos.filter((h) => h.estado !== "cumplido"), [hitos]);
+  const ordenados = useMemo(() => {
+    const pendiente = (h: Hito) => (h.estado === "cumplido" ? 1 : 0);
+    return [...hitos].sort((a, b) => pendiente(a) - pendiente(b));
+  }, [hitos]);
+
+  const pendientes = ordenados.filter((h) => h.estado !== "cumplido");
 
   const visibles = useMemo(
-    () => pendientes.filter((h) => filtro === "todas" || h.prioridad === filtro),
-    [pendientes, filtro],
+    () => ordenados.filter((h) => filtro === "todas"
+      || (filtro === "cumplidas") === (h.estado === "cumplido")),
+    [ordenados, filtro],
   );
 
   return (
@@ -238,9 +297,9 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
       </div>
 
       <div className="rm-filtros" role="group" aria-label="Filtrar brechas">
-        {(["todas", "alta", "media"] as const).map((f) => (
+        {(Object.keys(FILTROS) as Filtro[]).map((f) => (
           <button key={f} className={"rm-filtro" + (filtro === f ? " on" : "")} onClick={() => setFiltro(f)}>
-            {f === "todas" ? "Todas" : `Prioridad ${f}`}
+            {FILTROS[f]}
           </button>
         ))}
       </div>
@@ -262,17 +321,18 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
                 aria-expanded={open}
               >
                 <div className="rm-brecha-tit">
-                  <span className={`rm-punto ${h.prioridad}`} />
+                  <span className={`rm-punto ${h.estado}`} />
                   <div>
                     <h3>{h.titulo}</h3>
                     <span>{CAMPO[h.campo]} · {ESTADO[h.estado]}</span>
                   </div>
                 </div>
-                {/* Aquí iba el tamaño de la brecha ("-4"). Se quitó porque se leía como una
-                    calificación, y además ya está contado con todas las letras debajo de la barra
-                    ("Te faltan 4 niveles..."). */}
+                {/*
+                 * Aquí iban dos cosas que se quitaron a propósito: el tamaño de la brecha ("-4"),
+                 * que se leía como una calificación, y el chip de prioridad. El estado de la barra
+                 * —"En desarrollo" o "Cumplido"— ya dice lo único que hay que decidir aquí.
+                 */}
                 <div className="rm-brecha-der">
-                  <span className={`rm-prio ${h.prioridad}`}>{h.prioridad}</span>
                   {open ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
                 </div>
               </button>

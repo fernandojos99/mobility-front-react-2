@@ -34,6 +34,26 @@
 .tl-nivel.alto{background:#E7F4EB; color:#1E7A3C;}
 .tl-nivel.medio{background:#FDF3DC; color:#7A5B00;}
 .tl-nivel.bajo{background:#FCEBEA; color:#B3261E;}
+/*
+ * La celda de "Valores" abre el desglose. Va con `.gs` delante y con `background-color` en longhand
+ * porque `gs.css` trae un reset `.gs button{background:none; color:inherit}` que, con la sombra del
+ * shorthand, se comía el color del nivel y dejaba la celda transparente.
+ */
+.gs .tl-nivel-btn{display:inline-flex; align-items:center; justify-content:center; gap:.1875rem;
+  width:100%; min-height:1.75rem; font-family:inherit; font-weight:inherit;}
+.gs .tl-nivel-btn.alto{background-color:#E7F4EB; color:#1E7A3C;}
+.gs .tl-nivel-btn.medio{background-color:#FDF3DC; color:#7A5B00;}
+.gs .tl-nivel-btn.bajo{background-color:#FCEBEA; color:#B3261E;}
+.tl-nivel-btn svg{flex-shrink:0; opacity:.75; transition:transform .2s ease;}
+.tl-nivel-btn svg.girado{transform:rotate(180deg);}
+
+/* El desglose cuelga de su fila, así que se sangra y se marca con una línea azul a la izquierda. */
+.tl-desglose{margin:0 0 .625rem .5rem; padding:.625rem .75rem;
+  border-left:2px solid var(--rm-primary, #087ee8); background:#FBFDFF;
+  border-radius:0 var(--gs-radius-md) var(--gs-radius-md) 0;}
+.tl-desglose > p{font-size:.625rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--gs-muted-foreground); margin-bottom:.375rem;}
+.tl-desglose .tl-valores > div:first-child{border-top:0;}
 
 /* Termómetro. El degradado rojo→verde se conserva: es una escala de dato, no de marca. */
 .tl-escala{margin-top:1.125rem;}

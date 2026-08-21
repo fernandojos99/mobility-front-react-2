@@ -79,8 +79,7 @@ export function SelectorDestino({
             />
           </div>
           <p className="rm-detalle p" style={{ fontSize: 11, color: "var(--gs-muted-foreground)", lineHeight: 1.45, marginBottom: 4 }}>
-            El porcentaje es tu compatibilidad de hoy con el descriptivo de cada puesto. Nadie llega
-            al 100 %: por encima de 70 % ya estás cerca.
+            El porcentaje es tu compatibilidad de hoy con el descriptivo de cada puesto.
           </p>
 
           {filtrados.map((p) => (

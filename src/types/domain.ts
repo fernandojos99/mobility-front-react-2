@@ -162,6 +162,9 @@ export interface Colaborador {
   cursos: CursoItem[];
   historialPuestos: HistorialPuesto[];
   proyectosIds: string[];
+  /** Guardados para volver luego. `proyectosFavoritos` NO es `proyectosIds`: eso es participar. */
+  vacantesFavoritas: string[];
+  proyectosFavoritos: string[];
   logros: Logro[];
   intereses: Interes[];
   /** Opcional: no todos los perfiles tienen expediente. Paulina (5) no lo tiene, a propósito. */
@@ -188,7 +191,12 @@ export interface Proyecto {
   descripcion: string;
   responsabilidades: string[];
   sector: string;
+  /** Dónde ocurre (CIUDADES) y a qué área pertenece (AREAS). Alimentan los filtros. */
+  ubicacion: string;
+  area: string;
   kpi: string;
+  /** Lo que el proyecto DEJA, no lo que pide. Es el argumento para entrar. */
+  habilidadesQueGanas: string[];
   capacidadesRequeridas: string[];
   hardRequeridas: string[];
   duracionMeses: number;

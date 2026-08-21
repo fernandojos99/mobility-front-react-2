@@ -13,7 +13,6 @@
  * TODO lo que se lee aquí sale del mismo `Camino` que anima el mapa de `/yo/camino/:puestoId`.
  */
 import { useCallback, useEffect, useState } from "react";
-import { Compass } from "lucide-react";
 import { colaboradorService } from "../services/colaboradorService";
 import { useData } from "../store/DataProvider";
 import { useSesion } from "../contexts/SesionContext";
@@ -25,7 +24,7 @@ import {
 } from "../components/roadmap/SeccionesBrujula";
 import "../components/perfil/gs.css";
 import "../components/roadmap/roadmap.css";
-import type { Camino, PuestoCompatible } from "../types/domain";
+import type { Camino, GapActual, PuestoCompatible } from "../types/domain";
 
 /** "2 años" / "3 meses" a partir de la fecha de inicio en el puesto. */
 function antiguedadDe(desde: string): string {
@@ -50,10 +49,14 @@ export function AspiracionesPage() {
   const { toast } = useSesion();
   const [puestos, setPuestos] = useState<PuestoCompatible[]>([]);
   const [camino, setCamino] = useState<Camino | null>(null);
+  /* El cumplimiento del puesto ACTUAL vive en el gap, no en el camino: hay que pedirlo aparte. */
+  const [gap, setGap] = useState<GapActual | null>(null);
   const [guardando, setGuardando] = useState("");
 
   useEffect(() => {
-    if (yo) void colaboradorService.puestos(yo.id).then(setPuestos);
+    if (!yo) return;
+    void colaboradorService.puestos(yo.id).then(setPuestos);
+    void colaboradorService.gap(yo.id).then(setGap).catch(() => setGap(null));
   }, [yo]);
 
   const objetivo = yo?.aspiracion?.puestoObjetivoId;
@@ -106,6 +109,7 @@ export function AspiracionesPage() {
                   puestoActual={puestoActual?.titulo ?? "Puesto sin asignar"}
                   areaActual={yo.area}
                   antiguedad={antiguedadDe(yo.antiguedadDesde)}
+                  cumplimiento={gap?.cumplimiento ?? 0}
                   selector={selector}
                 />
                 <ListaBrechas hitos={camino.hitos} />
@@ -144,7 +148,6 @@ export function AspiracionesPage() {
                   color: "var(--gs-muted-foreground)", fontSize: 13, lineHeight: 1.55,
                   maxWidth: 460, marginBottom: 18,
                 }}>
-                  <Compass size={15} style={{ verticalAlign: "-2px", marginRight: 6, color: "var(--rm-primary)" }} />
                   Sin un puesto objetivo no hay camino que trazar. Elige uno y te enseñamos qué te
                   falta exactamente y en qué orden conseguirlo.
                 </p>

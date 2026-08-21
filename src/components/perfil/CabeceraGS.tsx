@@ -1,50 +1,55 @@
 /**
- * Cabecera de `/yo`: copia exacta de `profile-page.tsx` del componente de referencia — barra
- * superior, barra de título, hero con banner y la lista de cuatro accesos.
+ * Cabecera de `/yo`: barra superior, barra de título, hero y los accesos plegables.
  *
- * Lo que cambia respecto al original es sólo el CONTENIDO, que sale del colaborador real en vez de
- * estar quemado ("Andres Amaya Bracho"): el marcado y las medidas son los mismos. Las dos únicas
- * decisiones tomadas aquí:
- *   - El avatar cae a las iniciales cuando el colaborador no tiene foto (todos los del seed), en vez
- *     de enseñar el retrato de archivo del mockup como si fuera su cara. La forma es idéntica.
- *   - El botón de menú abre el sidebar que ya tiene la aplicación, para no dejar un botón muerto.
+ * El marcado y las medidas son los del componente de referencia `profile-page.tsx`. Lo que cambia
+ * es el CONTENIDO —sale del colaborador real— y que **los accesos ahora se despliegan**: cada uno
+ * guarda dentro las tarjetas que le tocan, en vez de mandar a otra parte.
+ *
+ * Se pueden tener **varios abiertos a la vez**, por eso el estado es un conjunto de ids y no un
+ * único índice: cerrar una sección para poder abrir otra sería pelearse con la pantalla.
  */
 import type { ReactNode } from "react";
 import {
-  Bell, BriefcaseBusiness, ChevronRight, FileText, Menu, MoreHorizontal,
-  Search, Target, UserRound,
+  Bell, BriefcaseBusiness, ChevronDown, ChevronRight, FileText, Menu, MoreHorizontal,
+  Search, UserRound,
 } from "lucide-react";
 import { iniciales } from "../../utils/format";
 import { HeroPerfilGS, type Fuente } from "./HeroPerfilGS";
 import type { Colaborador, Puesto } from "../../types/domain";
 
-export interface AccesoPerfil {
+/** Un acceso y lo que guarda dentro. */
+export interface GrupoPerfil {
+  id: string;
   label: string;
   icon: typeof UserRound;
-  onClick: () => void;
+  contenido: ReactNode;
 }
 
-/** Los cuatro accesos del original, con sus etiquetas e iconos exactos. */
-export const ACCESOS = [
-  { label: "Actualiza tu información personal", icon: UserRound },
-  { label: "Actualiza tu perfil profesional", icon: FileText },
-  { label: "Información de empleo", icon: BriefcaseBusiness },
-  { label: "Desempeño y objetivos", icon: Target },
-] as const;
+/** Los iconos de los tres accesos, heredados del original. */
+export const ICONOS_GRUPO = {
+  personal: UserRound,
+  profesional: FileText,
+  empleo: BriefcaseBusiness,
+} as const;
 
 interface Props {
   yo: Colaborador;
   puesto?: Puesto;
-  accesos: AccesoPerfil[];
+  grupos: GrupoPerfil[];
   onMenu: () => void;
   onFuente: (f: Fuente) => void;
   cargandoFuente: Fuente | null;
+  onManual: () => void;
   /** La barra de "perfil completo". Va ENTRE el hero y los accesos, que es donde se pidió. */
   barraCompletitud?: ReactNode;
+  /** Ids de los grupos abiertos; lo gobierna la página para poder abrirlos desde fuera. */
+  abiertos: Set<string>;
+  onAlternar: (id: string) => void;
 }
 
 export function CabeceraGS({
-  yo, puesto, accesos, onMenu, onFuente, cargandoFuente, barraCompletitud,
+  yo, puesto, grupos, onMenu, onFuente, cargandoFuente, onManual,
+  barraCompletitud, abiertos, onAlternar,
 }: Props) {
   return (
     <>
@@ -74,18 +79,30 @@ export function CabeceraGS({
         </div>
       </section>
 
-      <HeroPerfilGS yo={yo} puesto={puesto} onFuente={onFuente} cargandoFuente={cargandoFuente} />
+      <HeroPerfilGS
+        yo={yo}
+        puesto={puesto}
+        onFuente={onFuente}
+        cargandoFuente={cargandoFuente}
+        onManual={onManual}
+      />
 
       {barraCompletitud}
 
       <section className="gs-lista">
-        {accesos.map(({ label, icon: Icon, onClick }) => (
-          <button key={label} className="gs-lista-item" onClick={onClick}>
-            <Icon size={17} strokeWidth={1.7} className="gs-lista-icono" />
-            <span>{label}</span>
-            <ChevronRight size={16} className="gs-lista-chevron" />
-          </button>
-        ))}
+        {grupos.map(({ id, label, icon: Icon, contenido }) => {
+          const abierto = abiertos.has(id);
+          return (
+            <div key={id} className={"gs-grupo" + (abierto ? " abierto" : "")}>
+              <button className="gs-lista-item" onClick={() => onAlternar(id)} aria-expanded={abierto}>
+                <Icon size={17} strokeWidth={1.7} className="gs-lista-icono" />
+                <span>{label}</span>
+                {abierto ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              </button>
+              {abierto && <div className="gs-grupo-cuerpo">{contenido}</div>}
+            </div>
+          );
+        })}
       </section>
     </>
   );

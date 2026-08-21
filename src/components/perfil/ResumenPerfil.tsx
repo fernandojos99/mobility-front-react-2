@@ -4,7 +4,7 @@
  * Existe porque las tarjetas de arriba están pensadas para EDITAR, y editar y leer no se hacen
  * igual de bien en el mismo sitio. Aquí no hay ni un input: es lo que otra persona vería del perfil.
  */
-import { CircleHelp } from "lucide-react";
+import { BotonAyuda } from "../common/BotonAyuda";
 import type { Colaborador } from "../../types/domain";
 
 interface Props {
@@ -57,12 +57,18 @@ export function ResumenPerfil({ yo }: Props) {
   ];
 
   return (
-    <section className="gs-card" aria-labelledby="sec-resumen">
+    <section className="gs-card gs-resumen" aria-labelledby="sec-resumen">
       <div className="gs-card-cab">
         <h3 id="sec-resumen">Resumen</h3>
-        <button className="gs-ayuda" aria-label="Ayuda sobre el resumen">
-          <CircleHelp size={15} strokeWidth={2} />
-        </button>
+        <BotonAyuda
+          titulo="Resumen"
+          texto={[
+            "Es tu perfil visto de una sola pieza y en sólo lectura: aquí no se edita nada.",
+            "Se arma solo con lo que capturas en las secciones de arriba, así que si algo falta o " +
+            "está mal, se corrige allá y aquí se actualiza.",
+            "Es, más o menos, lo que vería tu formador o quien revise una postulación tuya.",
+          ]}
+        />
       </div>
       {bloques.map((b) => (
         <div className="gs-registro" key={b.titulo}>

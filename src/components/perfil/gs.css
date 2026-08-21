@@ -132,15 +132,15 @@
 .gs-nombre{max-width:20rem; font-size:19px; font-weight:800; text-transform:uppercase;
   line-height:1.08; color:#27384b;}
 /* .text-[10px].font-normal.normal-case.text-muted-foreground.sm:text-xs */
-.gs-nombre .gs-sello{white-space:nowrap;}
 .gs-nombre .gs-num{font-size:10px; font-weight:400; text-transform:none;
   color:var(--gs-muted-foreground);}
 /* .ml-1.inline-flex.align-middle.text-[#167bc0] */
-.gs-nombre .gs-verificado{margin-left:.25rem; display:inline-flex; vertical-align:middle; color:#167bc0;}
 /* .mt-3.space-y-1.text-[10px].font-medium.uppercase.leading-relaxed.text-muted-foreground.sm:text-xs */
 .gs-cargo{margin-top:.75rem; font-size:10px; font-weight:500; text-transform:uppercase;
   line-height:1.625; color:var(--gs-muted-foreground);}
 .gs-cargo p + p{margin-top:.25rem;}
+/* El código de cinco dígitos del puesto y de la unidad, como en el mockup original. */
+.gs-cargo span{font-weight:400; text-transform:none; color:var(--gs-muted-foreground); opacity:.8;}
 
 /* ───────── section.border-t.px-4.py-2.lg:px-8 ───────── */
 .gs-lista{border-top:1px solid var(--gs-border); padding:.5rem 1rem;}
@@ -309,16 +309,80 @@
 .gs-nav-perfil a.activo i{background:#087ee8; color:#fff;}
 
 /* ───────── "Actualiza tu perfil" y sus fuentes ───────── */
-.gs-fuentes{margin-top:.75rem; display:flex; flex-wrap:wrap; gap:.5rem;}
-.gs-fuente-btn{display:inline-flex; align-items:center; gap:.4375rem;
-  border:1px solid var(--gs-border); background:var(--gs-card); color:var(--gs-foreground);
-  border-radius:var(--gs-radius-md); padding:.5rem .75rem; font-size:11px; font-weight:600;
-  transition:border-color .15s ease, color .15s ease;}
-.gs-fuente-btn:hover{border-color:#087ee8; color:#087ee8;}
-.gs-fuente-btn:disabled{opacity:.5; cursor:not-allowed;}
-.gs-fuentes-nota{margin-top:.5rem; font-size:11px; color:var(--gs-muted-foreground); line-height:1.45;}
+/* Caja destacada: las fuentes son el atajo, y tienen que verse como tal. Azul de marca con texto
+   blanco, para que no se confunda con las tarjetas de formulario que vienen debajo. */
+.gs-fuentes-caja{margin-top:.875rem; border-radius:var(--gs-radius-xl); padding:.875rem 1rem 1rem;
+  background:linear-gradient(135deg,#087ee8 0%,#066bc5 100%); color:#fff;
+  box-shadow:0 6px 18px rgba(8,126,232,.22);}
+.gs-fuentes-tit{font-size:12px; font-weight:700; margin-bottom:.625rem;}
+.gs-fuentes{display:flex; flex-wrap:wrap; gap:.5rem;}
+.gs-fuente-btn{display:inline-flex; align-items:center; gap:.4375rem; flex:1 1 100%;
+  justify-content:center; border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.14); color:#fff;
+  border-radius:var(--gs-radius-md); padding:.625rem .75rem; font-size:12px; font-weight:600;
+  transition:background-color .15s ease;}
+.gs-fuente-btn:hover{background:#fff; color:#066bc5; border-color:#fff;}
+.gs-fuente-btn:disabled{opacity:.55; cursor:not-allowed;}
+.gs-fuentes-nota{margin-top:.625rem; font-size:11px; color:rgba(255,255,255,.85); line-height:1.45;}
+.gs-fuentes-nota b{color:#fff;}
+
+/* ───────── Modal de LinkedIn ───────── */
+.gs-li{text-align:left;}
+.gs-li-logo{width:2.75rem; height:2.75rem; border-radius:var(--gs-radius-md);
+  background:#0A66C2; color:#fff; display:grid; place-items:center; margin-bottom:.875rem;}
+.gs-li h3{font-size:1.0625rem; font-weight:700; color:var(--gs-foreground);}
+.gs-li p{margin-top:.5rem; font-size:.8125rem; line-height:1.5; color:var(--gs-muted-foreground);}
+.gs-li ul{list-style:none; margin:.75rem 0; display:flex; flex-direction:column; gap:.5rem;}
+.gs-li li{display:flex; align-items:center; gap:.5rem; font-size:.8125rem; color:var(--gs-foreground);}
+.gs-li li svg{color:#1E7A3C; flex-shrink:0;}
+.gs-li-aviso{display:flex; align-items:center; gap:.375rem; background:var(--gs-muted);
+  border-radius:var(--gs-radius-md); padding:.5rem .625rem; font-size:11px !important;}
+.gs-li-pie{display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1rem;}
+.gs-li-ok{flex:1 1 auto; background:#0A66C2; color:#fff; border-radius:var(--gs-radius-md);
+  padding:.625rem 1rem; font-size:.8125rem; font-weight:700;}
+.gs-li-ok:hover{background:#08529b;}
+.gs-li-no{background:var(--gs-card); border:1px solid var(--gs-border); color:var(--gs-foreground);
+  border-radius:var(--gs-radius-md); padding:.625rem 1rem; font-size:.8125rem; font-weight:600;}
+
+/* ───────── Controles de demo del sidebar ───────── */
+.rolebox-demo{display:flex; flex-direction:column; gap:.375rem; margin-top:.625rem;
+  padding-top:.625rem; border-top:1px solid #3A5B7D;}
+.demo-btn{display:flex; align-items:center; gap:.4375rem; width:100%; text-align:left;
+  background:transparent; border:1px solid #3A5B7D; border-radius:8px; color:#A9BCCE;
+  padding:.4375rem .5625rem; font-size:11px; font-weight:600;}
+.demo-btn:hover{border-color:#8FA6BE; color:#E8EEF5;}
+.demo-btn:disabled{opacity:.5; cursor:not-allowed;}
 
 @media(min-width:640px){
   .gs-nav-perfil a{font-size:11px;}
   .gs-nav-perfil i{width:3rem; height:3rem;}
+  .gs-fuente-btn{flex:1 1 auto;}
 }
+
+
+/* ───────── Grupos plegables de /yo ───────── */
+.gs-grupo{border-bottom:1px solid color-mix(in oklab, var(--gs-border) 70%, transparent);}
+.gs-grupo:last-child{border-bottom:0;}
+.gs-grupo .gs-lista-item{border-bottom:0;}
+.gs-grupo.abierto .gs-lista-item{color:#087ee8;}
+.gs-grupo.abierto .gs-lista-icono{color:#087ee8;}
+.gs-grupo-cuerpo{padding-bottom:.75rem;}
+/* Dentro de un grupo, las tarjetas no llevan el margen lateral de las sueltas. */
+.gs-grupo-cuerpo .gs-card{margin-left:0; margin-right:0;}
+
+/* ───────── Resumen: no es otro formulario, es el cierre ─────────
+   Fondo azul muy suave y borde azul para que se distinga de las tarjetas de captura. */
+.gs-card.gs-resumen{background:linear-gradient(180deg,#F4F9FE 0%,#EDF5FD 100%);
+  border-color:#B9DCFA;}
+.gs-card.gs-resumen .gs-registro{border-bottom-color:#CFE4F7;}
+.gs-card.gs-resumen h3{color:#066bc5;}
+
+
+/* ───────── Modal de ayuda ───────── */
+.ayuda{text-align:left; padding-right:1.5rem;}
+.ayuda h3{font-size:1.0625rem; font-weight:700; color:var(--gs-foreground); margin-bottom:.75rem;}
+.ayuda p{font-size:.8125rem; line-height:1.6; color:var(--gs-muted-foreground);}
+.ayuda p + p{margin-top:.625rem;}
+.ayuda-ok{margin-top:1.125rem; background:#087ee8; color:#fff; border-radius:var(--gs-radius-md);
+  padding:.625rem 1.125rem; font-size:.8125rem; font-weight:700; min-height:2.75rem;}
+.ayuda-ok:hover{background:#066bc5;}

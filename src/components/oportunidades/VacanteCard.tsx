@@ -8,13 +8,20 @@
  * La piel es la de `/yo` y sus hermanas: clases `op-*` sobre los tokens `--gs-*`/`--rm-*`, no las
  * de `base.css`.
  */
-import { MapPin, Calendar, Lock, ExternalLink, MapPinned } from "lucide-react";
+import { MapPin, Calendar, Heart, Lock, ExternalLink, MapPinned } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AnilloAvance } from "../common/AnilloAvance";
 import { money, plural } from "../../utils/format";
 import type { VacanteOportunidad } from "../../types/domain";
 
-export function VacanteCard({ vacante, compatibilidad, bloqueo, capacidadesFaltantes }: VacanteOportunidad) {
+interface Props extends VacanteOportunidad {
+  favorita: boolean;
+  onFavorita: (id: string) => void;
+}
+
+export function VacanteCard({
+  vacante, compatibilidad, bloqueo, capacidadesFaltantes, favorita, onFavorita,
+}: Props) {
   return (
     <article className={"op-card" + (bloqueo.bloqueado ? " bloqueada" : "")}>
       <div className="op-card-cab">
@@ -64,6 +71,16 @@ export function VacanteCard({ vacante, compatibilidad, bloqueo, capacidadesFalta
             Postularme en Radar <ExternalLink size={13} />
           </a>
         )}
+
+        <button
+          className={"op-corazon" + (favorita ? " on" : "")}
+          onClick={() => onFavorita(vacante.id)}
+          aria-pressed={favorita}
+          aria-label={favorita ? `Quitar ${vacante.req.titulo} de favoritas` : `Guardar ${vacante.req.titulo} en favoritas`}
+          title={favorita ? "Quitar de favoritas" : "Guardar en favoritas"}
+        >
+          <Heart size={17} fill={favorita ? "currentColor" : "none"} />
+        </button>
       </div>
     </article>
   );

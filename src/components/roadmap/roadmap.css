@@ -80,6 +80,8 @@
   border-top:8px solid var(--rm-navy); transition:left .4s cubic-bezier(.2,.8,.3,1);}
 .rm-nivel-falta{display:block; margin-top:7px; font-size:10.5px; line-height:1.4;
   color:var(--gs-muted-foreground);}
+/* La marca de referencia no se mueve, así que se dibuja más sobria que la del nivel. */
+.rm-nivel-marca.fija{border-top-color:var(--gs-muted-foreground); transition:none;}
 
 /* ───────── Filtros y brechas ───────── */
 .rm-filtros{display:flex; overflow-x:auto; gap:7px; margin-bottom:12px; scrollbar-width:none;}
@@ -105,8 +107,6 @@
 .rm-prio.alta{background:var(--rm-red-soft); color:var(--rm-red);}
 .rm-prio.media{background:var(--rm-yellow-soft); color:#7A5B00;}
 .rm-prio.baja{background:var(--rm-ok-soft); color:var(--rm-ok);}
-.rm-gap{color:var(--rm-red); font-size:12px; font-weight:800;}
-.rm-gap.cero{color:var(--rm-ok);}
 
 .rm-niveles{padding:0 14px 15px;}
 .rm-niveles .rm-nivel{margin-top:0;}
@@ -148,11 +148,11 @@
 /* Cerrado se lee como el `<select>` del original: una fila con su chevron. */
 .rm-destino-btn{width:100%; display:flex; align-items:center; gap:10px; text-align:left;
   padding:12px 13px; color:var(--gs-foreground); background:var(--gs-card);
-  border:1px solid var(--gs-border); border-radius:10px; font-size:13px; font-weight:700;}
+  border:2px solid var(--rm-primary); border-radius:10px; font-size:13px; font-weight:700;}
 /* Sin destino elegido, este control ES la pantalla: borde grueso en azul de marca y fondo suave
    para que se lea como el único paso que hay que dar. */
-.rm-destino.primero .rm-destino-btn{border:2px solid var(--rm-primary); background:#FBFDFF;
-  padding:14px 13px; box-shadow:0 0 0 4px rgba(8,126,232,.12);}
+.rm-destino.primero .rm-destino-btn{background:#FBFDFF; padding:14px 13px;
+  box-shadow:0 0 0 4px rgba(8,126,232,.12);}
 .rm-destino.primero .rm-destino-label{color:var(--rm-primary); font-size:11px;}
 .rm-destino-btn:hover{border-color:var(--rm-primary);}
 .rm-destino-btn > span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
@@ -171,8 +171,13 @@
 .rm-opcion-main{flex:1; min-width:0;}
 .rm-opcion-main b{font-size:13px; display:block;}
 .rm-opcion-main span{font-size:11px; color:var(--gs-muted-foreground);}
+/* En móvil los dos botones se apilan; a partir de tableta caben en fila. */
+.rm-opcion-acciones{display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0;}
 .rm-opcion-btn{border:1px solid var(--gs-border); background:var(--gs-card); border-radius:8px;
-  padding:6px 10px; font-size:11px; font-weight:700; color:var(--gs-foreground); white-space:nowrap;}
+  padding:6px 10px; font-size:11px; font-weight:700; color:var(--gs-foreground); white-space:nowrap;
+  min-height:2rem;}
+.rm-opcion-btn.ver{border-color:#B9DCFA; color:var(--rm-primary); background:#FBFDFF;}
+.rm-opcion-btn.ver:hover{background:var(--rm-soft);}
 .rm-opcion-btn:hover{border-color:var(--rm-primary); color:var(--rm-primary);}
 .rm-opcion-btn:disabled{opacity:.5; cursor:not-allowed;}
 .rm-opcion-actual{background:var(--rm-soft); color:var(--rm-primary-dark); border-radius:99px;
@@ -204,4 +209,45 @@
   .rm-hero-prog{gap:15px;}
   .rm-hero-prog strong{font-size:34px;}
   .rm-brecha-der .rm-prio{display:none;}
+}
+
+
+/* ───────── Detalle de un puesto ───────── */
+.dp{text-align:left; padding-right:1.5rem;}
+.dp-kicker{color:var(--rm-primary); font-size:10px; font-weight:800; letter-spacing:.12em;
+  text-transform:uppercase;}
+.dp h3{font-size:1.25rem; font-weight:800; letter-spacing:-.02em; margin-top:.25rem;
+  color:var(--gs-foreground);}
+.dp-sub{color:var(--gs-muted-foreground); font-size:.75rem; margin-top:.25rem;}
+.dp-desc{font-size:.8125rem; line-height:1.6; color:var(--gs-foreground); margin-top:.875rem;}
+
+.dp-datos{display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-top:1rem;
+  background:var(--gs-muted); border-radius:var(--gs-radius-md); padding:.75rem;}
+.dp-datos span{display:block; color:var(--gs-muted-foreground); font-size:10px;
+  text-transform:uppercase; letter-spacing:.06em;}
+.dp-datos b{display:flex; align-items:center; gap:4px; font-size:.8125rem; margin-top:2px;}
+
+.dp-bloque{margin-top:1.125rem;}
+.dp-bloque h4{font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--gs-muted-foreground); margin-bottom:.5rem;}
+.dp-reqs{display:flex; flex-wrap:wrap; gap:6px;}
+/* Rojo = te falta, verde = ya lo tienes. El icono lo dice también, no sólo el color. */
+.dp-req{display:inline-flex; align-items:center; gap:5px; border-radius:99px; padding:4px 10px;
+  font-size:11px; font-weight:600; background:var(--rm-red-soft); color:var(--rm-red);}
+.dp-req.ok{background:var(--rm-ok-soft); color:var(--rm-ok);}
+
+.dp-pasos{list-style:none; counter-reset:paso; display:flex; flex-direction:column; gap:.625rem;}
+.dp-pasos li{counter-increment:paso; padding-left:1.75rem; position:relative;}
+.dp-pasos li::before{content:counter(paso); position:absolute; left:0; top:1px;
+  width:1.25rem; height:1.25rem; border-radius:99px; background:var(--rm-soft);
+  color:var(--rm-primary-dark); font-size:10px; font-weight:800; display:grid; place-items:center;}
+.dp-pasos b{display:block; font-size:.8125rem;}
+.dp-pasos span{display:block; font-size:.75rem; line-height:1.45; color:var(--gs-muted-foreground);
+  margin-top:2px;}
+.dp-vacio{display:flex; align-items:center; gap:6px; font-size:.8125rem;
+  color:var(--gs-muted-foreground);}
+
+@media(min-width:560px){
+  .rm-opcion-acciones{flex-direction:row; align-items:center;}
+  .dp-datos{grid-template-columns:repeat(3,1fr);}
 }

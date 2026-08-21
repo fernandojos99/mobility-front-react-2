@@ -9,7 +9,7 @@
  *
  * La piel es la de `/yo` y sus hermanas: clases `op-*` sobre los tokens `--gs-*`/`--rm-*`.
  */
-import { Lightbulb, Settings2, Boxes, Users, Clock, Target, CheckCircle2 } from "lucide-react";
+import { Lightbulb, Settings2, Boxes, Users, Clock, Target, CheckCircle2, Heart, Sparkles } from "lucide-react";
 import type { ProyectoOportunidad } from "../../types/domain";
 
 const ICONO_TIPO = {
@@ -21,9 +21,13 @@ const ICONO_TIPO = {
 interface Props extends ProyectoOportunidad {
   postulando: boolean;
   onPostular: (id: string) => void;
+  favorito: boolean;
+  onFavorito: (id: string) => void;
 }
 
-export function ProyectoCard({ proyecto, califica, faltantes, participa, postulando, onPostular }: Props) {
+export function ProyectoCard({
+  proyecto, califica, faltantes, participa, postulando, onPostular, favorito, onFavorito,
+}: Props) {
   const Icono = ICONO_TIPO[proyecto.tipo];
 
   return (
@@ -52,6 +56,18 @@ export function ProyectoCard({ proyecto, califica, faltantes, participa, postula
         <span><b>KPI:</b> {proyecto.kpi}</span>
       </div>
 
+      {/* Lo que el proyecto DEJA. Es el argumento para entrar, y hasta ahora no se veía. */}
+      {proyecto.habilidadesQueGanas.length > 0 && (
+        <div className="op-ganas">
+          <div className="op-ganas-tit"><Sparkles size={12} /> Lo que te llevas</div>
+          <div className="op-tags">
+            {proyecto.habilidadesQueGanas.map((h) => (
+              <span className="op-tag gana" key={h}>{h}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="op-tags">
         <span className="op-tag"><Clock size={11} /> {proyecto.duracionMeses} meses</span>
         <span className="op-tag"><Users size={11} /> {proyecto.cupo} lugares</span>
@@ -59,6 +75,9 @@ export function ProyectoCard({ proyecto, califica, faltantes, participa, postula
       <div className="op-meta">{proyecto.dueno} · {proyecto.unidadNegocio}</div>
 
       <div className="op-pie op-sep">
+        {/* Todo lo que no es el corazón va en UN solo contenedor: `.op-pie` es una fila flex, y sin
+            esto cada trozo del bloque "para entrar te falta" se convertía en una columna suelta. */}
+        <div className="op-pie-main">
         {participa ? (
           <span className="op-tag ok"><CheckCircle2 size={11} /> Ya participas</span>
         ) : califica ? (
@@ -76,6 +95,17 @@ export function ProyectoCard({ proyecto, califica, faltantes, participa, postula
             </button>
           </>
         )}
+        </div>
+
+        <button
+          className={"op-corazon" + (favorito ? " on" : "")}
+          onClick={() => onFavorito(proyecto.id)}
+          aria-pressed={favorito}
+          aria-label={favorito ? `Quitar ${proyecto.nombre} de favoritos` : `Guardar ${proyecto.nombre} en favoritos`}
+          title={favorito ? "Quitar de favoritos" : "Guardar en favoritos"}
+        >
+          <Heart size={17} fill={favorito ? "currentColor" : "none"} />
+        </button>
       </div>
     </article>
   );

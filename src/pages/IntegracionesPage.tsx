@@ -14,13 +14,13 @@
  * lo que hace que el colaborador se fíe de lo que acaba de pasar.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import { Ellipsis, Lock } from "lucide-react";
 import { colaboradorService } from "../services/colaboradorService";
 import { useData } from "../store/DataProvider";
 import { useSesion } from "../contexts/SesionContext";
 import { useYo } from "../hooks/useYo";
-import { ACCESOS, CabeceraGS } from "../components/perfil/CabeceraGS";
+import { CabeceraGS, ICONOS_GRUPO, type GrupoPerfil } from "../components/perfil/CabeceraGS";
 import type { Fuente } from "../components/perfil/HeroPerfilGS";
 import { ResumenPerfil } from "../components/perfil/ResumenPerfil";
 import { TarjetaPerfil, type CampoDef, type Registro } from "../components/perfil/TarjetaPerfil";
@@ -60,7 +60,6 @@ const NORMALIZA: Record<string, (r: Registro) => Registro> = {
 
 export function IntegracionesPage() {
   const yo = useYo();
-  const navigate = useNavigate();
   const { abrirMenu } = useOutletContext<ContextoShell>();
   const { actualizarColaborador, catalogos, puestoDe } = useData();
   const { toast } = useSesion();
@@ -71,6 +70,24 @@ export function IntegracionesPage() {
   /** El snackbar inferior del componente original. */
   const [aviso, setAviso] = useState<string | null>(null);
   const hoja = useRef<HTMLDivElement>(null);
+  /* Varios grupos pueden estar abiertos a la vez, así que es un conjunto y no un índice. */
+  const [abiertos, setAbiertos] = useState<Set<string>>(new Set());
+
+  const alternar = (id: string): void =>
+    setAbiertos((prev) => {
+      const s = new Set(prev);
+      if (s.has(id)) s.delete(id); else s.add(id);
+      return s;
+    });
+
+  /** "Agregar Manual": abre los tres grupos y baja a ellos. */
+  const abrirTodos = (): void => {
+    setAbiertos(new Set(["personal", "profesional", "empleo"]));
+    setTimeout(
+      () => hoja.current?.querySelector(".gs-lista")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      60,
+    );
+  };
 
   const refrescarCompletitud = useCallback(async (id: number) => {
     try { setCompletitud(await colaboradorService.completitud(id)); } catch { /* se ignora: es informativo */ }
@@ -82,9 +99,7 @@ export function IntegracionesPage() {
 
   if (!yo) return null;
 
-  const irA = (id: string): void => {
-    hoja.current?.querySelector(`#${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+
 
   const conectar = async (fuente: Fuente) => {
     setCargando(fuente);
@@ -123,12 +138,138 @@ export function IntegracionesPage() {
 
   const cat = catalogos;
 
-  /** Los cuatro accesos del original, apuntando a sitios reales de esta aplicación. */
-  const accesos = [
-    { ...ACCESOS[0], onClick: () => irA("sec-educacion") },
-    { ...ACCESOS[1], onClick: () => irA("sec-logros") },
-    { ...ACCESOS[2], onClick: () => irA("sec-gs") },
-    { ...ACCESOS[3], onClick: () => navigate("/yo/gap") },
+  /** Cada tarjeta, ya construida, para poder repartirlas entre los tres grupos. */
+  const tarjetas = {
+    educacion: (
+      <TarjetaPerfil
+        titulo="Formación académica"
+        campos={CAMPOS_EDUCACION}
+        registros={(yo.educacion ?? []) as unknown as Registro[]}
+        fila={(r) => ({
+          titulo: String(r.institucion ?? ""),
+          sub: String(r.titulo ?? ""),
+          meta: [r.inicio, r.fin].filter(Boolean).join(" – "),
+        })}
+                ayuda={[
+          "Tu nivel de estudios se compara contra el que pide cada puesto, y esa comparación es uno " +
+          "de los pasos de tu camino: si el puesto pide licenciatura y no la tienes registrada, " +
+          "aparece como pendiente aunque la hayas terminado.",
+          "Por eso importa capturarla aunque te parezca obvia. Si sigues estudiando, deja vacío el " +
+          "año de conclusión.",
+        ]}
+        onGuardar={(rs) => guardar("educacion", rs)}
+      />
+    ),
+    gs: (
+      <TarjetaPerfil
+        titulo="Experiencia en Grupo Salinas"
+        campos={camposGrupoSalinas(cat?.negocios ?? [], cat?.areas ?? [])}
+        registros={(yo.historialPuestos ?? []) as unknown as Registro[]}
+        fila={(r) => ({
+          titulo: String(r.puesto ?? ""),
+          sub: [r.negocio, r.areaPrincipal].filter(Boolean).join(" · "),
+          meta: `${r.desde ?? ""} – ${r.hasta || "Actual"}`,
+        })}
+                ayuda={[
+          "De aquí sale tu antigüedad, que es una de las dos reglas que pueden bloquear una " +
+          "postulación: la fecha de inicio de tu puesto actual es la que cuenta.",
+          "También alimenta la regla de escalafón — hay puestos a los que sólo se llega habiendo " +
+          "ocupado otro antes—, así que conviene que estén todos, no sólo el último.",
+          "Deja la fecha final vacía en el puesto que ocupas hoy.",
+        ]}
+        onGuardar={(rs) => guardar("historialPuestos", rs)}
+      />
+    ),
+    externa: (
+      <TarjetaPerfil
+        titulo="Experiencia externa"
+        campos={CAMPOS_EXTERNA}
+        registros={(yo.experiencia ?? []) as unknown as Registro[]}
+        fila={(r) => ({
+          titulo: String(r.puesto ?? ""),
+          sub: String(r.empresa ?? ""),
+          meta: [r.inicio, r.fin].filter(Boolean).join(" – "),
+        })}
+                ayuda={[
+          "Lo que hiciste fuera del grupo. Suma a tus años de experiencia, que es lo que se compara " +
+          "contra los que pide cada puesto.",
+          "No cuenta para la antigüedad interna ni para el escalafón: para eso está la sección de " +
+          "experiencia en Grupo Salinas.",
+        ]}
+        onGuardar={(rs) => guardar("experiencia", rs)}
+      />
+    ),
+    logros: (
+      <TarjetaPerfil
+        titulo="Logros"
+        campos={camposLogros(cat?.tiposProyecto ?? [], cat?.sectores ?? [])}
+        registros={(yo.logros ?? []) as unknown as Registro[]}
+        fila={(r) => ({
+          titulo: String(r.nombre ?? ""),
+          sub: [r.tipo, r.sector].filter(Boolean).join(" · "),
+          meta: String(r.kpi ?? ""),
+          texto: String(r.descripcion ?? ""),
+        })}
+                ayuda={[
+          "Un logro es algo que conseguiste y que se puede medir. Por eso se pide un KPI con número: " +
+          "«mejoré la atención» no dice nada, «bajé el tiempo de cierre un 30 %» sí.",
+          "Es lo que convierte tu experiencia en evidencia comprobable, que es justo lo que miran " +
+          "cuando compites por un puesto con alguien de perfil parecido.",
+        ]}
+        onGuardar={(rs) => guardar("logros", rs)}
+      />
+    ),
+    intereses: (
+      <TarjetaPerfil
+        titulo="Intereses"
+        campos={camposIntereses(cat?.interesesProfesionales ?? [])}
+        registros={(yo.intereses ?? []) as unknown as Registro[]}
+        fila={(r) => ({ titulo: String(r.interesProfesional ?? ""), texto: String(r.motivo ?? "") })}
+                ayuda={[
+          "Hacia dónde te quieres mover y por qué. No se compara contra nada ni afecta tu " +
+          "compatibilidad: es para que tu formador sepa qué proponerte.",
+          "El motivo importa tanto como el interés — es la diferencia entre que te ofrezcan " +
+          "cualquier proyecto del área o justo el que te acerca a donde quieres llegar.",
+        ]}
+        onGuardar={(rs) => guardar("intereses", rs)}
+      />
+    ),
+    certificaciones: (
+      <TarjetaPerfil
+        titulo="Certificaciones / Diplomados"
+        campos={camposCertificaciones(cat?.tiposCurso ?? [])}
+        registros={(yo.cursos ?? []) as unknown as Registro[]}
+        fila={(r) => ({
+          titulo: String(r.nombre ?? ""),
+          sub: [r.tipo, r.institucion].filter(Boolean).join(" · "),
+          meta: [r.fecha ? `Expedido ${r.fecha}` : "", r.caducidad ? `Caduca ${r.caducidad}` : ""]
+            .filter(Boolean).join(" · "),
+        })}
+                ayuda={[
+          "Cursos, certificados, diplomados y licencias. Junto con los proyectos laterales son la " +
+          "evidencia que piden los puestos con equipo a cargo.",
+          "Una certificación caducada no se borra de tu historial, pero deja de contar como " +
+          "evidencia vigente. Si la tuya no caduca, deja esa fecha vacía.",
+        ]}
+        onGuardar={(rs) => guardar("cursos", rs)}
+      />
+    ),
+  };
+
+  /** Los tres accesos y lo que guarda cada uno. */
+  const grupos: GrupoPerfil[] = [
+    {
+      id: "personal", label: "Actualiza tu información personal", icon: ICONOS_GRUPO.personal,
+      contenido: tarjetas.intereses,
+    },
+    {
+      id: "profesional", label: "Actualiza tu perfil profesional", icon: ICONOS_GRUPO.profesional,
+      contenido: <>{tarjetas.educacion}{tarjetas.logros}{tarjetas.certificaciones}</>,
+    },
+    {
+      id: "empleo", label: "Información de empleo", icon: ICONOS_GRUPO.empleo,
+      contenido: <>{tarjetas.gs}{tarjetas.externa}</>,
+    },
   ];
 
   return (
@@ -137,10 +278,13 @@ export function IntegracionesPage() {
         <CabeceraGS
           yo={yo}
           puesto={puestoDe(yo.puestoActualId)}
-          accesos={accesos}
+          grupos={grupos}
+          abiertos={abiertos}
+          onAlternar={alternar}
           onMenu={abrirMenu}
           onFuente={conectar}
           cargandoFuente={cargando}
+          onManual={abrirTodos}
           /* La barra de completitud va ENTRE el hero y la lista de accesos. */
           barraCompletitud={completitud && (
             <section className="gs-card" aria-labelledby="sec-completo">
@@ -189,83 +333,6 @@ export function IntegracionesPage() {
             )}
           </section>
         )}
-
-        {/* Las seis secciones. Cada una guarda por su cuenta. */}
-        <TarjetaPerfil
-          id="sec-educacion"
-          titulo="Formación académica"
-          campos={CAMPOS_EDUCACION}
-          registros={(yo.educacion ?? []) as unknown as Registro[]}
-          fila={(r) => ({
-            titulo: String(r.institucion ?? ""),
-            sub: String(r.titulo ?? ""),
-            meta: [r.inicio, r.fin].filter(Boolean).join(" – "),
-          })}
-          onGuardar={(rs) => guardar("educacion", rs)}
-        />
-
-        <TarjetaPerfil
-          id="sec-gs"
-          titulo="Experiencia en Grupo Salinas"
-          campos={camposGrupoSalinas(cat?.negocios ?? [], cat?.areas ?? [])}
-          registros={(yo.historialPuestos ?? []) as unknown as Registro[]}
-          fila={(r) => ({
-            titulo: String(r.puesto ?? ""),
-            sub: [r.negocio, r.areaPrincipal].filter(Boolean).join(" · "),
-            meta: `${r.desde ?? ""} – ${r.hasta || "Actual"}`,
-          })}
-          onGuardar={(rs) => guardar("historialPuestos", rs)}
-        />
-
-        <TarjetaPerfil
-          id="sec-externa"
-          titulo="Experiencia externa"
-          campos={CAMPOS_EXTERNA}
-          registros={(yo.experiencia ?? []) as unknown as Registro[]}
-          fila={(r) => ({
-            titulo: String(r.puesto ?? ""),
-            sub: String(r.empresa ?? ""),
-            meta: [r.inicio, r.fin].filter(Boolean).join(" – "),
-          })}
-          onGuardar={(rs) => guardar("experiencia", rs)}
-        />
-
-        <TarjetaPerfil
-          id="sec-logros"
-          titulo="Logros"
-          campos={camposLogros(cat?.tiposProyecto ?? [], cat?.sectores ?? [])}
-          registros={(yo.logros ?? []) as unknown as Registro[]}
-          fila={(r) => ({
-            titulo: String(r.nombre ?? ""),
-            sub: [r.tipo, r.sector].filter(Boolean).join(" · "),
-            meta: String(r.kpi ?? ""),
-            texto: String(r.descripcion ?? ""),
-          })}
-          onGuardar={(rs) => guardar("logros", rs)}
-        />
-
-        <TarjetaPerfil
-          id="sec-intereses"
-          titulo="Intereses"
-          campos={camposIntereses(cat?.interesesProfesionales ?? [])}
-          registros={(yo.intereses ?? []) as unknown as Registro[]}
-          fila={(r) => ({ titulo: String(r.interesProfesional ?? ""), texto: String(r.motivo ?? "") })}
-          onGuardar={(rs) => guardar("intereses", rs)}
-        />
-
-        <TarjetaPerfil
-          id="sec-certificaciones"
-          titulo="Certificaciones / Diplomados"
-          campos={camposCertificaciones(cat?.tiposCurso ?? [])}
-          registros={(yo.cursos ?? []) as unknown as Registro[]}
-          fila={(r) => ({
-            titulo: String(r.nombre ?? ""),
-            sub: [r.tipo, r.institucion].filter(Boolean).join(" · "),
-            meta: [r.fecha ? `Expedido ${r.fecha}` : "", r.caducidad ? `Caduca ${r.caducidad}` : ""]
-              .filter(Boolean).join(" · "),
-          })}
-          onGuardar={(rs) => guardar("cursos", rs)}
-        />
 
         <ResumenPerfil yo={yo} />
 

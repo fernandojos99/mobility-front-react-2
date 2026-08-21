@@ -17,6 +17,10 @@ export const colaboradorService = {
   definirAspiracion: (id: number, puestoObjetivoId: string, motivo?: string): Promise<Colaborador> =>
     apiClient.put(`/colaboradores/${id}/aspiracion`, { puestoObjetivoId, motivo }),
 
+  /** Controles de demo: ver `Sidebar`. */
+  borrarAspiracion: (id: number): Promise<Colaborador> =>
+    apiClient.delete<Colaborador>(`/colaboradores/${id}/aspiracion`),
+
   completitud: (id: number): Promise<Completitud> => apiClient.get(`/colaboradores/${id}/completitud`),
 
   integrar: (id: number, fuente: FuenteIntegracion): Promise<ResultadoIntegracion> =>

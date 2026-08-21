@@ -12,6 +12,9 @@
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 import { AnilloAvance } from "../common/AnilloAvance";
+import { useData } from "../../store/DataProvider";
+import { useYo } from "../../hooks/useYo";
+import { DetallePuesto } from "./DetallePuesto";
 import type { PuestoCompatible } from "../../types/domain";
 
 interface Props {
@@ -33,6 +36,10 @@ export function SelectorDestino({
   siempreAbierto = false, destacado = false, etiqueta = "Puesto deseado",
 }: Props) {
   const [plegable, setPlegable] = useState(!objetivo);
+  /** Qué puesto se está mirando en detalle. */
+  const [detalle, setDetalle] = useState<PuestoCompatible | null>(null);
+  const { puestoDe } = useData();
+  const yo = useYo();
   const abierto = siempreAbierto || plegable;
   const setAbierto = setPlegable;
   const [busqueda, setBusqueda] = useState("");
@@ -83,17 +90,22 @@ export function SelectorDestino({
                 <b>{p.titulo}</b>
                 <span>{p.area} · {p.nivel}</span>
               </div>
-              {objetivo === p.puestoId ? (
-                <span className="rm-opcion-actual">Tu aspiración</span>
-              ) : (
-                <button
-                  className="rm-opcion-btn"
-                  disabled={guardando !== ""}
-                  onClick={() => onElegir(p.puestoId)}
-                >
-                  {guardando === p.puestoId ? "Guardando…" : "Aspirar a este"}
+              <div className="rm-opcion-acciones">
+                <button className="rm-opcion-btn ver" onClick={() => setDetalle(p)}>
+                  Ver detalle
                 </button>
-              )}
+                {objetivo === p.puestoId ? (
+                  <span className="rm-opcion-actual">Tu aspiración</span>
+                ) : (
+                  <button
+                    className="rm-opcion-btn"
+                    disabled={guardando !== ""}
+                    onClick={() => onElegir(p.puestoId)}
+                  >
+                    {guardando === p.puestoId ? "Guardando…" : "Aspirar a este"}
+                  </button>
+                )}
+              </div>
             </div>
           ))}
           {!filtrados.length && (
@@ -102,6 +114,15 @@ export function SelectorDestino({
             </p>
           )}
         </div>
+      )}
+
+      {detalle && yo && puestoDe(detalle.puestoId) && (
+        <DetallePuesto
+          yo={yo}
+          puesto={puestoDe(detalle.puestoId)!}
+          compatibilidad={detalle.compatibilidad}
+          onCerrar={() => setDetalle(null)}
+        />
       )}
     </div>
   );

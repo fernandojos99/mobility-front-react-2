@@ -10,7 +10,8 @@
  * mandar `{ educacion: [...] }` no pisa nada más del colaborador.
  */
 import { useState } from "react";
-import { ChevronDown, ChevronUp, CircleHelp, Loader2, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, Plus, X } from "lucide-react";
+import { BotonAyuda } from "../common/BotonAyuda";
 import { esMxAIso, isoAEsMx } from "../../utils/format";
 
 export type TipoCampo = "texto" | "textarea" | "select" | "fecha" | "lista";
@@ -44,6 +45,8 @@ interface Props {
   fila: (r: Registro) => FilaResumen;
   /** Pregunta del estado vacío. En el original es "¿Desea agregar un registro ahora?". */
   vacio?: string;
+  /** Qué explica el "?" de esta tarjeta. */
+  ayuda: string[];
   onGuardar: (registros: Registro[]) => Promise<void>;
 }
 
@@ -57,7 +60,7 @@ const VISIBLES = 2;
 const vacioDe = (campos: CampoDef[]): Registro =>
   Object.fromEntries(campos.map((c) => [c.clave, c.tipo === "lista" ? [] : ""]));
 
-export function TarjetaPerfil({ id, titulo, campos, registros, fila, vacio, onGuardar }: Props) {
+export function TarjetaPerfil({ id, titulo, campos, registros, fila, vacio, ayuda, onGuardar }: Props) {
   const [abierto, setAbierto] = useState(false);
   const [expandido, setExpandido] = useState(false);
   const [borrador, setBorrador] = useState<Registro>(() => vacioDe(campos));
@@ -115,9 +118,7 @@ export function TarjetaPerfil({ id, titulo, campos, registros, fila, vacio, onGu
     <section className="gs-card" id={id} aria-labelledby={tituloId}>
       <div className="gs-card-cab">
         <h3 id={tituloId}>{titulo}</h3>
-        <button className="gs-ayuda" aria-label={`Ayuda sobre ${titulo.toLowerCase()}`}>
-          <CircleHelp size={15} strokeWidth={2} />
-        </button>
+        <BotonAyuda titulo={titulo} texto={ayuda} />
       </div>
 
       {sinRegistros && !abierto && (

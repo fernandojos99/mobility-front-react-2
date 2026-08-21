@@ -26,6 +26,30 @@ import type { Camino, Hito } from "../../types/domain";
  * rótulo dice 20 %, la flecha está en el 20 % del ancho. `meta` puede ser menor que 5 —el hito de
  * desempeño pide 3—, por eso el avance se mide contra la meta y no contra un 5 fijo.
  */
+/**
+ * Barra de rol: la flecha se clava en el nivel que se ESPERA (3 de 5) y no se mueve; lo que varía
+ * es el relleno azul, que es cómo le va de verdad.
+ *
+ * Así las dos tarjetas se comparan de un vistazo contra la misma referencia: en "Puesto actual" el
+ * relleno es lo que cubre del puesto que ya ocupa, y en "Puesto deseado", su compatibilidad con el
+ * objetivo. Si la flecha se moviera con cada tarjeta no habría nada que comparar.
+ */
+export function BarraDesempeno({ pct }: { pct: number }) {
+  const relleno = Math.round(Math.min(100, Math.max(0, pct)));
+  const ESPERADO = 60; // 3 de 5
+  return (
+    <div className="rm-nivel" aria-label={`${relleno} % — se espera ${ESPERADO} %`}>
+      <div className="rm-nivel-barra">
+        <span className="rm-nivel-relleno" style={{ width: `${relleno}%` }} />
+        <span className="rm-nivel-marca fija" style={{ left: `${ESPERADO}%` }} />
+      </div>
+      <span className="rm-nivel-falta">
+        La marca es el nivel que se espera (3 de 5).
+      </span>
+    </div>
+  );
+}
+
 export function NivelBarra({ actual, meta, compacta = false }: {
   actual: number;
   meta: number;
@@ -72,10 +96,6 @@ const ESTADO: Record<Hito["estado"], string> = {
   bloqueado: "Bloqueado",
 };
 
-/** Promedio 1–5, redondeado a un decimal como en el mockup ("2.8 / 5"). */
-const promedio = (ns: number[]): number =>
-  ns.length ? Math.round((ns.reduce((a, b) => a + b, 0) / ns.length) * 10) / 10 : 0;
-
 /* ────────────────────────── Hero ────────────────────────── */
 
 export function HeroBrujula({ camino }: { camino: Camino }) {
@@ -108,7 +128,7 @@ export function HeroBrujula({ camino }: { camino: Camino }) {
         ) : (
           <span>
             Te {pendientes === 1 ? "falta" : "faltan"}{" "}
-            <strong>{pendientes} {pendientes === 1 ? "hito" : "hitos"}</strong> para dar el siguiente salto.
+            <strong>{pendientes} {pendientes === 1 ? "paso" : "pasos"}</strong> para dar el siguiente salto.
           </span>
         )}
       </p>
@@ -118,16 +138,15 @@ export function HeroBrujula({ camino }: { camino: Camino }) {
 
 /* ────────────────────────── Comparación de roles ────────────────────────── */
 
-export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad, selector }: {
+export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad, cumplimiento, selector }: {
   camino: Camino;
   puestoActual: string;
   areaActual: string;
   antiguedad: string;
+  /** Qué tanto cubre el descriptivo del puesto que ocupa HOY (0–100). Viene del gap. */
+  cumplimiento: number;
   selector: ReactNode;
 }) {
-  // Los dos promedios salen de los MISMOS hitos que se listan debajo: por eso cuadran.
-  const hoy = promedio(camino.hitos.map((h) => h.nivelActual));
-  const meta = promedio(camino.hitos.map((h) => h.nivelMeta));
 
   return (
     <section className="rm-sec">
@@ -149,10 +168,10 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
           <h3>{puestoActual}</h3>
           <p>{areaActual} · {antiguedad}</p>
           <div className="rm-rol-nota">
-            <span>Nivel promedio</span>
-            <strong>{hoy} <small>/ 5</small></strong>
+            <span>Cómo te va hoy</span>
+            <strong>{cumplimiento} <small>%</small></strong>
           </div>
-          <NivelBarra actual={hoy} meta={5} compacta />
+          <BarraDesempeno pct={cumplimiento} />
         </div>
 
         <div className="rm-conector"><ArrowRight size={18} /></div>
@@ -165,10 +184,10 @@ export function ComparacionRoles({ camino, puestoActual, areaActual, antiguedad,
           <h3>{camino.puestoObjetivoTitulo}</h3>
           <p>Compatibilidad de hoy: {camino.compatibilidad} %</p>
           <div className="rm-rol-nota">
-            <span>Nivel requerido</span>
-            <strong>{meta} <small>/ 5</small></strong>
+            <span>Cómo vas para ese puesto</span>
+            <strong>{camino.compatibilidad} <small>%</small></strong>
           </div>
-          <NivelBarra actual={meta} meta={5} compacta />
+          <BarraDesempeno pct={camino.compatibilidad} />
         </div>
       </div>
 
@@ -215,7 +234,7 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
           <p className="rm-eyebrow">TUS BRECHAS</p>
           <h2>Lo que necesitas fortalecer</h2>
         </div>
-        <span className="rm-cuenta">{visibles.length} {visibles.length === 1 ? "hito" : "hitos"}</span>
+        <span className="rm-cuenta">{visibles.length} {visibles.length === 1 ? "paso" : "pasos"}</span>
       </div>
 
       <div className="rm-filtros" role="group" aria-label="Filtrar brechas">
@@ -234,7 +253,6 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
 
       <div className="rm-brechas">
         {visibles.map((h) => {
-          const brecha = Math.max(0, h.nivelMeta - h.nivelActual);
           const open = abierto === h.id;
           return (
             <article className={"rm-brecha" + (open ? " abierta" : "")} key={h.id}>
@@ -250,11 +268,11 @@ export function ListaBrechas({ hitos }: { hitos: Hito[] }) {
                     <span>{CAMPO[h.campo]} · {ESTADO[h.estado]}</span>
                   </div>
                 </div>
+                {/* Aquí iba el tamaño de la brecha ("-4"). Se quitó porque se leía como una
+                    calificación, y además ya está contado con todas las letras debajo de la barra
+                    ("Te faltan 4 niveles..."). */}
                 <div className="rm-brecha-der">
                   <span className={`rm-prio ${h.prioridad}`}>{h.prioridad}</span>
-                  <span className={"rm-gap" + (brecha === 0 ? " cero" : "")}>
-                    {brecha === 0 ? "✓" : `-${brecha}`}
-                  </span>
                   {open ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
                 </div>
               </button>

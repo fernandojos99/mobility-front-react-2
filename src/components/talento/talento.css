@@ -81,8 +81,10 @@
 
 /* ───────── Valores ───────── */
 .tl-valores{display:flex; flex-direction:column;}
-.tl-valores > div{display:grid; grid-template-columns:1fr 5.75rem; align-items:center;
+.tl-valores > div{display:grid; grid-template-columns:1fr 6.25rem; align-items:center;
   min-height:2.1875rem; gap:.625rem; border-bottom:1px dashed var(--gs-border); font-size:.75rem;}
+/* La píldora, centrada en su columna: alineada a un borde se leía como si colgara. */
+.tl-valores .tl-nivel{text-align:center; justify-self:stretch;}
 .tl-valores > div:last-child{border-bottom:0;}
 
 /* ───────── Aprendizaje ───────── */
@@ -94,8 +96,9 @@
 .tl-aprend b{padding:.625rem .25rem; text-align:center; border-left:1px solid var(--gs-border);
   font-weight:600;}
 .tl-aprend b.pend{color:var(--gs-muted-foreground);}
+/* La leyenda va ENCIMA de la tabla: explicar las columnas después de leerlas no sirve de nada. */
 .tl-leyenda{display:flex; justify-content:flex-end; gap:.875rem;
-  color:var(--gs-muted-foreground); font-size:.625rem; margin-top:.5625rem;}
+  color:var(--gs-muted-foreground); font-size:.625rem; margin-bottom:.5rem;}
 
 /* ───────── Coaching ───────── */
 .tl-mini{display:grid; grid-template-columns:1fr 1fr; gap:.625rem;}
@@ -107,7 +110,8 @@
    Sigue siendo índigo: es la convención del proyecto —si es índigo, lo sugirió el sistema—, y por
    eso el color no se negocia. Lo que cambia es la forma: cabecera propia y una fila por consejo,
    en vez del bloque con viñetas «→» de antes. */
-.tl-ia{border-color:#D8DBF7;}
+.tl-ia{border-color:#CFD2F2; background:linear-gradient(180deg,#F6F5FE 0%,#EFEEFC 100%);}
+.tl-ia .tl-ia-fila{border-bottom-color:#DEDCF6;}
 .tl-ia .tl-icono{background:var(--ai);}
 .tl-ia-etiqueta{font-size:.5625rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em;
   color:var(--ai); background:var(--ai-soft); border-radius:999px; padding:.1875rem .5rem;
